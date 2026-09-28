@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Prestaciones Laborales - El Salvador</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -21,6 +20,13 @@
             font-weight: bold;
             color: #333;
         }
+        .asueto-item label {
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .asueto-item input[type="checkbox"] {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -29,18 +35,26 @@
     <h2 class="text-center mb-4 text-dark fw-bold">Calculadora de Prestaciones Laborales</h2>
     
     <form id="calcForm">
-        <!-- Datos Financieros y Antigüedad -->
+        <!-- Datos y Antigüedad -->
         <div class="card">
-            <div class="card-header">1. Datos Financieros y Antigüedad</div>
+            <div class="card-header">1. Datos y Antigüedad</div>
             <div class="card-body">
                 <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="fechaIngreso" class="form-label">Fecha de inicio</label>
+                        <input type="date" class="form-control" id="fechaIngreso">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="fechaTerminacion" class="form-label">Fecha de finalización</label>
+                        <input type="date" class="form-control" id="fechaTerminacion">
+                    </div>
                     <div class="col-12">
                         <label for="nombreTrabajador" class="form-label">Nombre completo de la persona trabajadora</label>
                         <input type="text" class="form-control" id="nombreTrabajador" placeholder="Ej. Juan Carlos Pérez">
                     </div>
                     <div class="col-md-3">
                         <label for="salarioMensual" class="form-label">Ingreso mensual (USD)</label>
-                        <input type="number" step="0.01" class="form-control" id="salarioMensual" required placeholder="Ej. 4000">
+                        <input type="number" step="0.01" class="form-control" id="salarioMensual" required placeholder="Ej. 408.80">
                     </div>
                     <div class="col-md-3">
                         <label for="anosLaborados" class="form-label">Años laborados</label>
@@ -117,15 +131,74 @@
                         <label for="horasNocturnas" class="form-label">Horas extras nocturnas (7:00 p.m. a 6:00 a.m.)</label>
                         <input type="number" step="0.01" class="form-control" id="horasNocturnas" value="0">
                     </div>
-                    <div class="col-md-3">
-                        <label for="diasAsueto" class="form-label">Días de asueto laborados</label>
-                        <input type="number" class="form-control" id="diasAsueto" value="0">
+
+                    <!-- ====== SECCIÓN DE DÍAS DE ASUETO MODIFICADA ====== -->
+                    <div class="col-md-6">
+                        <label class="form-label">¿Trabajó en día de asueto?</label>
+                        <div class="mb-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="trabajoAsueto" id="asuetoSi" value="si">
+                                <label class="form-check-label" for="asuetoSi">Sí</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="trabajoAsueto" id="asuetoNo" value="no" checked>
+                                <label class="form-check-label" for="asuetoNo">No</label>
+                            </div>
+                        </div>
+
+                        <!-- Cuadritos de días de asueto (se muestran solo si marca "Sí") -->
+                        <div id="seccionAsuetos" class="d-none border rounded p-2 bg-light">
+                            <small class="text-muted d-block mb-2">Marque los días de asueto que trabajó:</small>
+                            <div id="listaAsuetosCheck" class="row g-2">
+                                <!-- Se genera dinámicamente con JS -->
+                            </div>
+                            <input type="hidden" id="diasAsueto" value="0">
+                        </div>
                     </div>
+                    <!-- ====== FIN SECCIÓN MODIFICADA ====== -->
+
                     <div class="col-md-3">
                         <label for="diasDescanso" class="form-label">Días de descanso semanal laborados</label>
                         <input type="number" class="form-control" id="diasDescanso" value="0">
                     </div>
                 </div>
+
+<!-- Horas extras pendientes de pago -->
+<div class="border rounded p-3 mb-4 bg-light">
+    <h6 class="fw-bold">Horas extras pendientes de pago</h6>
+    <div class="row g-3 align-items-end">
+        <!-- Pregunta Sí / No -->
+        <div class="col-md-4">
+            <label class="form-label">¿Tiene horas extras no pagadas?</label>
+            <div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="horasNoPagadas" id="horasNoPagadasSi" value="si">
+                    <label class="form-check-label" for="horasNoPagadasSi">Sí</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="horasNoPagadas" id="horasNoPagadasNo" value="no" checked>
+                    <label class="form-check-label" for="horasNoPagadasNo">No</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selector de Fecha y Hora de Inicio -->
+        <div class="col-md-4 d-none" id="seccionFechaHoraExtra">
+            <label for="fechaHoraExtra" class="form-label">Fecha y hora de inicio</label>
+            <input type="datetime-local" class="form-control" id="fechaHoraExtra">
+        </div>
+
+        <!-- Cantidad de Horas Pendientes -->
+        <div class="col-md-4 d-none" id="seccionCantidadExtra">
+            <label for="cantidadHorasPendientes" class="form-label">Cantidad de horas</label>
+            <input type="number" min="0" step="0.5" class="form-control" id="cantidadHorasPendientes" value="0">
+        </div>
+    </div>
+
+    <small class="text-muted d-block mt-2">
+        Si responde "Sí", el sistema puede usar la fecha y hora para determinar el tipo de jornada.
+    </small>
+</div>
 
                 <!-- Sección de Vacaciones -->
                 <hr>
@@ -145,13 +218,54 @@
                     <label for="fechaUltimaVacacion" class="form-label">Fecha en que le pagaron o gozó las vacaciones por última vez:</label>
                     <input type="date" class="form-control w-50" id="fechaUltimaVacacion">
                 </div>
+                <div class="alert alert-info mb-0">
+                    <strong>Importante:</strong> la fecha de la última vacación debe seleccionarse con el calendario.
+                    Con ella se podrá determinar si corresponde un periodo completo o proporcional.
+                </div>
+            </div>
+        </div>
+
+        <!-- Aguinaldo -->
+        <div class="card">
+            <div class="card-header">4. Aguinaldo</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tipo de cálculo</label>
+                        <select class="form-select" id="tipoAguinaldo">
+                            <option value="automatico">Determinar automáticamente según las fechas</option>
+                            <option value="proporcional">Aguinaldo proporcional</option>
+                            <option value="completo">Aguinaldo completo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="fechaCorteAguinaldo" class="form-label">Fecha para el cálculo</label>
+                        <input type="date" class="form-control" id="fechaCorteAguinaldo">
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    La fecha de inicio y la fecha de finalización son las referencias principales para determinar el periodo correspondiente.
+                </small>
+            </div>
+        </div>
+
+        <!-- Indemnización -->
+        <div class="card" id="seccionIndemnizacion">
+            <div class="card-header">5. Indemnización</div>
+            <div class="card-body">
+                <div class="alert alert-warning mb-0">
+                    <strong>Despido injustificado:</strong> el cálculo se realizará considerando el salario,
+                    los años laborados y el límite aplicable según el sector económico seleccionado.
+                    <br>
+                    <strong>Renuncia voluntaria:</strong> esta sección no debe mostrar indemnización por despido.
+                </div>
             </div>
         </div>
 
         <!-- Datos para el comprobante de liquidación-->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>4. Datos para el comprobante de liquidación</span>
+                <span>6. Datos para el comprobante de liquidación</span>
                 <span class="badge bg-secondary">opcional</span>
             </div>
             <div class="card-body">
@@ -166,12 +280,12 @@
                         <input type="text" class="form-control" id="cargoDesempenado" placeholder="Ej. Desarrollador de Software">
                     </div>
                     <div class="col-md-3">
-                        <label for="fechaIngreso" class="form-label">Fecha de ingreso</label>
-                        <input type="date" class="form-control" id="fechaIngreso">
+                        <label for="fechaIngresoComprobante" class="form-label">Fecha de ingreso</label>
+                        <input type="date" class="form-control" id="fechaIngresoComprobante">
                     </div>
                     <div class="col-md-3">
-                        <label for="fechaTerminacion" class="form-label">Fecha de terminación</label>
-                        <input type="date" class="form-control" id="fechaTerminacion">
+                        <label for="fechaTerminacionComprobante" class="form-label">Fecha de terminación</label>
+                        <input type="date" class="form-control" id="fechaTerminacionComprobante">
                     </div>
                 </div>
             </div>
@@ -211,6 +325,7 @@
                 </div>
             </div>
 
+            <div id="mensajeTipoCierre" class="alert alert-info d-none"></div>
             <h5 class="mb-3 text-secondary">Detalle de prestaciones</h5>
             <ul class="list-group mb-3">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -237,9 +352,181 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const despido = document.getElementById("despido");
+    const renuncia = document.getElementById("renuncia");
+    const seccionRenuncia = document.getElementById("seccionRenuncia");
+    const tipoCargo = document.getElementById("tipoCargo");
+    const labelAviso = document.getElementById("labelAviso");
+    const avisoSi = document.getElementById("avisoSi");
+    const avisoNo = document.getElementById("avisoNo");
+
+    function actualizarRenuncia() {
+        if (renuncia.checked) {
+            // Mostrar las preguntas de renuncia
+            seccionRenuncia.classList.remove("d-none");
+        } else {
+            // Ocultarlas cuando sea despido
+            seccionRenuncia.classList.add("d-none");
+        }
+    }
+
+    function actualizarAviso() {
+        // El aviso cambia según el cargo seleccionado
+        if (tipoCargo.value === "jefatura") {
+            labelAviso.textContent =
+                "¿Dio aviso con al menos 30 días de anticipación?";
+        } else {
+            labelAviso.textContent =
+                "¿Dio aviso con al menos 15 días de anticipación?";
+        }
+
+        // Si selecciona "No", mostramos claramente la situación
+        let mensaje = document.getElementById("mensajeSinAviso");
+
+        if (avisoNo.checked) {
+            if (!mensaje) {
+                mensaje = document.createElement("div");
+                mensaje.id = "mensajeSinAviso";
+                mensaje.className = "alert alert-warning mt-3 mb-0";
+                seccionRenuncia.appendChild(mensaje);
+            }
+
+            mensaje.innerHTML =
+                "<strong>No dio aviso previo.</strong><br>" +
+                "Esta información será tomada en cuenta al momento de realizar el cálculo de la renuncia.";
+        } else if (mensaje) {
+            mensaje.remove();
+        }
+    }
+
+    // Eventos
+    despido.addEventListener("change", actualizarRenuncia);
+    renuncia.addEventListener("change", actualizarRenuncia);
+
+    tipoCargo.addEventListener("change", actualizarAviso);
+
+    avisoSi.addEventListener("change", actualizarAviso);
+    avisoNo.addEventListener("change", actualizarAviso);
+
+    // Estado inicial
+    actualizarRenuncia();
+    actualizarAviso();
+
+    // ============================================================
+    // DÍAS DE ASUETO: Generación de cuadritos por cada día
+    // ============================================================
+    const diasAsueto = [
+        { id: "asueto_1enero", nombre: "Primero de enero (Año Nuevo)" },
+        { id: "asueto_jueves_santo", nombre: "Jueves Santo" },
+        { id: "asueto_viernes_santo", nombre: "Viernes Santo" },
+        { id: "asueto_sabado_santo", nombre: "Sábado Santo" },
+        { id: "asueto_1mayo", nombre: "Primero de mayo (Día del Trabajo)" },
+        { id: "asueto_10mayo", nombre: "Diez de mayo (Día de las Madres)" },
+        { id: "asueto_17junio", nombre: "Diecisiete de junio (Día del Padre)" },
+        { id: "asueto_6agosto", nombre: "Seis de agosto (Divino Salvador del Mundo)" },
+        { id: "asueto_3agosto_ss", nombre: "Tres de agosto (San Salvador)" },
+        { id: "asueto_5agosto_ss", nombre: "Cinco de agosto (San Salvador)" },
+        { id: "asueto_patronales_municipio", nombre: "Fiestas patronales del municipio (día principal)" },
+        { id: "asueto_15sep", nombre: "Quince de septiembre (Independencia)" },
+        { id: "asueto_2nov", nombre: "Dos de noviembre (Día de los Difuntos)" },
+        { id: "asueto_21nov", nombre: "Veintiuno de noviembre (Fiestas de San Miguel)" },
+        { id: "asueto_25dic", nombre: "Veinticinco de diciembre (Navidad)" }
+
+    ];
+
+    const contenedorAsuetos = document.getElementById("listaAsuetosCheck");
+    const seccionAsuetos = document.getElementById("seccionAsuetos");
+    const radioAsuetoSi = document.getElementById("asuetoSi");
+    const radioAsuetoNo = document.getElementById("asuetoNo");
+    const inputDiasAsueto = document.getElementById("diasAsueto");
+
+    // Generar los checkboxes
+    diasAsueto.forEach(function (dia) {
+        const col = document.createElement("div");
+        col.className = "col-md-6";
+
+        const formCheck = document.createElement("div");
+        formCheck.className = "form-check asueto-item";
+
+        const checkbox = document.createElement("input");
+        checkbox.className = "form-check-input asueto-check";
+        checkbox.type = "checkbox";
+        checkbox.id = dia.id;
+        checkbox.value = dia.nombre;
+
+        const label = document.createElement("label");
+        label.className = "form-check-label";
+        label.htmlFor = dia.id;
+        label.textContent = dia.nombre;
+
+        // Resaltar el 21 de noviembre
+        if (dia.id === "asueto_21nov") {
+            label.classList.add("fw-bold", "text-primary");
+        }
+
+        formCheck.appendChild(checkbox);
+        formCheck.appendChild(label);
+        col.appendChild(formCheck);
+        contenedorAsuetos.appendChild(col);
+
+        // Al cambiar cualquier checkbox, actualizamos el contador
+        checkbox.addEventListener("change", actualizarContadorAsuetos);
+    });
+
+    // Mostrar u ocultar la sección según Sí/No
+    radioAsuetoSi.addEventListener("change", function () {
+        if (radioAsuetoSi.checked) {
+            seccionAsuetos.classList.remove("d-none");
+        }
+    });
+
+    radioAsuetoNo.addEventListener("change", function () {
+        if (radioAsuetoNo.checked) {
+            seccionAsuetos.classList.add("d-none");
+            // Desmarcar todos los checkboxes
+            document.querySelectorAll(".asueto-check").forEach(function (cb) {
+                cb.checked = false;
+            });
+            inputDiasAsueto.value = 0;
+        }
+    });
+
+    // Actualiza el campo oculto con la cantidad de días marcados
+    function actualizarContadorAsuetos() {
+        const marcados = document.querySelectorAll(".asueto-check:checked").length;
+        inputDiasAsueto.value = marcados;
+    }
+});
+document.addEventListener("DOMContentLoaded", function () {
+        const radioSi = document.getElementById("horasNoPagadasSi");
+        const radioNo = document.getElementById("horasNoPagadasNo");
+        const seccionFecha = document.getElementById("seccionFechaHoraExtra");
+        const seccionCantidad = document.getElementById("seccionCantidadExtra");
+
+        function toggleSecciones() {
+            if (radioSi.checked) {
+                seccionFecha.classList.remove("d-none");
+                seccionCantidad.classList.remove("d-none");
+            } else {
+                seccionFecha.classList.add("d-none");
+                seccionCantidad.classList.add("d-none");
+            }
+        }
+
+        radioSi.addEventListener("change", toggleSecciones);
+        radioNo.addEventListener("change", toggleSecciones);
+    });
+</script>
+
+<!-- Si tienes estos archivos JavaScript, deben cargarse después del HTML -->
 <script src="interfaz.js"></script>
 <script src="calculos.js"></script>
 <script src="main.js"></script>
+
 </body>
 </html>
