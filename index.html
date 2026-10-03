@@ -3,531 +3,576 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Prestaciones Laborales - El Salvador</title>
+    <title>Calculadora de Prestaciones Laborales</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card {
-            border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        .card-header {
-            background-color: #ffffff;
-            border-bottom: 2px solid #e9ecef;
-            font-weight: bold;
-            color: #333;
-        }
-        .asueto-item label {
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .asueto-item input[type="checkbox"] {
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
 
-<div class="container py-5">
-    <h2 class="text-center mb-4 text-dark fw-bold">Calculadora de Prestaciones Laborales</h2>
-    
-    <form id="calcForm">
-        <!-- Datos y Antigüedad -->
-        <div class="card">
-            <div class="card-header">1. Datos y Antigüedad</div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label for="fechaIngreso" class="form-label">Fecha de inicio</label>
-                        <input type="date" class="form-control" id="fechaIngreso">
+<body class="bg-light">
+    <div class="container py-4 py-md-5">
+
+        <!-- TÍTULO -->
+        <div class="text-center mb-4">
+            <h1 class="fw-bold text-dark">Calculadora de Prestaciones Laborales</h1>
+        </div>
+
+        <form id="calcForm">
+            <div class="accordion" id="formularioAccordion">
+
+                <!-- PASO 1 -->
+                <div class="accordion-item border-0 shadow-sm rounded-3 mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button fw-bold rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#pasoUno" aria-expanded="true" aria-controls="pasoUno">
+                            <span class="badge text-bg-primary rounded-circle me-3">1</span>
+                            <div>
+                                <div>Información de tu trabajo</div>
+                                <small class="text-secondary fw-normal">Datos básicos sobre tu empleo</small>
+                            </div>
+                        </button>
+                    </h2>
+
+                    <div id="pasoUno" class="accordion-collapse collapse show" data-bs-parent="#formularioAccordion">
+                        <div class="accordion-body p-4">
+                            <div class="alert alert-light border mb-4">
+                                <i class="bi bi-person-vcard text-primary me-2"></i>
+                                Completa los datos de tu trabajo para realizar el cálculo.
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="nombreTrabajador" class="form-label fw-semibold">
+                                        <i class="bi bi-person text-primary me-1"></i>Nombre del trabajador
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="nombreTrabajador" name="nombreTrabajador" placeholder="Nombre completo">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="nombrePatrono" class="form-label fw-semibold">
+                                        <i class="bi bi-building text-primary me-1"></i>Nombre del patrono o empresa
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="nombrePatrono" name="nombrePatrono" placeholder="Nombre de la empresa">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cargoEspecifico" class="form-label fw-semibold">
+                                        <i class="bi bi-briefcase text-primary me-1"></i>Cargo o puesto
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="cargoEspecifico" name="cargoEspecifico" placeholder="Ej. Vendedor, técnico, auxiliar...">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="sectorEconomico" class="form-label fw-semibold">
+                                        <i class="bi bi-diagram-3 text-primary me-1"></i>Sector económico
+                                    </label>
+                                    <select class="form-select form-select-lg" id="sectorEconomico" name="sectorEconomico">
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="comercio">Comercio, industria o servicios</option>
+                                        <option value="agropecuario">Agropecuario</option>
+                                        <option value="maquila">Maquila</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fechaIngreso" class="form-label fw-semibold">
+                                        <i class="bi bi-calendar-event text-primary me-1"></i>Fecha de ingreso
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="fechaIngreso" name="fechaIngreso">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fechaTerminacion" class="form-label fw-semibold">
+                                        <i class="bi bi-calendar-x text-danger me-1"></i>Fecha de terminación
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="fechaTerminacion" name="fechaTerminacion">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="salarioMensual" class="form-label fw-semibold">
+                                        <i class="bi bi-cash-coin text-success me-1"></i>Salario mensual
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="salarioMensual" name="salarioMensual" min="0" step="0.01" placeholder="0.00">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-clock-history text-primary me-1"></i>Tiempo trabajado
+                                    </label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="anosLaborados" name="anosLaborados" readonly>
+                                                <span class="input-group-text">años</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="mesesLaborados" name="mesesLaborados" readonly>
+                                                <span class="input-group-text">meses</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="fechaTerminacion" class="form-label">Fecha de finalización</label>
-                        <input type="date" class="form-control" id="fechaTerminacion">
+                </div>
+
+                <!-- PASO 2 -->
+                <div class="accordion-item border-0 shadow-sm rounded-3 mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed fw-bold rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#pasoDos" aria-expanded="false" aria-controls="pasoDos">
+                            <span class="badge text-bg-primary rounded-circle me-3">2</span>
+                            <div>
+                                <div>¿Cómo terminó tu trabajo?</div>
+                                <small class="text-secondary fw-normal">Esto determina qué prestaciones pueden aplicar</small>
+                            </div>
+                        </button>
+                    </h2>
+
+                    <div id="pasoDos" class="accordion-collapse collapse" data-bs-parent="#formularioAccordion">
+                        <div class="accordion-body p-4">
+                            <div class="alert alert-warning border-0">
+                                <i class="bi bi-question-circle-fill me-2"></i>
+                                Selecciona la situación que corresponde a tu caso.
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">¿Qué ocurrió?</label>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <input type="radio" class="btn-check" name="tipoCierre" id="despido" value="despido" checked>
+                                        <label class="btn btn-outline-danger w-100 p-3" for="despido">
+                                            <i class="bi bi-person-x fs-3 d-block mb-2"></i>
+                                            <strong class="d-block">Me despidieron</strong>
+                                            <small>La empresa terminó mi contrato</small>
+                                        </label>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <input type="radio" class="btn-check" name="tipoCierre" id="renuncia" value="renuncia">
+                                        <label class="btn btn-outline-primary w-100 p-3" for="renuncia">
+                                            <i class="bi bi-box-arrow-right fs-3 d-block mb-2"></i>
+                                            <strong class="d-block">Yo renuncié</strong>
+                                            <small>Decidí terminar la relación laboral</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="seccionRenuncia" class="d-none">
+                                <div class="card border-primary mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary fw-bold">
+                                            <i class="bi bi-info-circle me-2"></i>Información sobre tu renuncia
+                                        </h5>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="tipoCargo" class="form-label fw-semibold">¿Cuál era tu cargo?</label>
+                                                <select class="form-select" id="tipoCargo" name="tipoCargo">
+                                                    <option value="empleado">Empleado</option>
+                                                    <option value="jefatura">Jefatura o gerencia</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label id="labelAviso" class="form-label fw-semibold">¿Diste aviso previo?</label>
+                                                <div class="d-flex gap-4">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="avisoPrevio" id="avisoSi" value="si">
+                                                        <label class="form-check-label" for="avisoSi">Sí</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="avisoPrevio" id="avisoNo" value="no">
+                                                        <label class="form-check-label" for="avisoNo">No</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="mensajeAvisoNo" class="alert alert-warning mt-3 d-none">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            No diste el aviso previo requerido. Esto puede afectar el cálculo correspondiente a tu renuncia.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-12">
-                        <label for="nombreTrabajador" class="form-label">Nombre completo de la persona trabajadora</label>
-                        <input type="text" class="form-control" id="nombreTrabajador" placeholder="Ej. Juan Carlos Pérez">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="salarioMensual" class="form-label">Ingreso mensual (USD)</label>
-                        <input type="number" step="0.01" class="form-control" id="salarioMensual" required placeholder="Ej. 408.80">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="anosLaborados" class="form-label">Años laborados</label>
-                        <input type="number" class="form-control" id="anosLaborados" min="0" required placeholder="Ej. 20">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="mesesLaborados" class="form-label">Meses laborados (0 a 11)</label>
-                        <input type="number" class="form-control" id="mesesLaborados" min="0" max="11" required placeholder="Ej. 7">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="sectorEconomico" class="form-label">Sector económico</label>
-                        <select class="form-select" id="sectorEconomico">
-                            <option value="comercio">Comercio, industria y servicios</option>
-                            <option value="agropecuario">Agropecuario</option>
-                            <option value="maquila">Textil y confección (Maquila)</option>
-                        </select>
+                </div>
+
+                <!-- PASO 3 -->
+                <div class="accordion-item border-0 shadow-sm rounded-3 mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed fw-bold rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#pasoTres" aria-expanded="false" aria-controls="pasoTres">
+                            <span class="badge text-bg-primary rounded-circle me-3">3</span>
+                            <div>
+                                <div>Horas, días especiales y vacaciones</div>
+                                <small class="text-secondary fw-normal">Indica si trabajaste en situaciones especiales</small>
+                            </div>
+                        </button>
+                    </h2>
+
+                    <div id="pasoTres" class="accordion-collapse collapse" data-bs-parent="#formularioAccordion">
+                        <div class="accordion-body p-4">
+
+                            <!-- HORAS -->
+                            <div class="card border-0 bg-light mb-4">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-3">
+                                        <i class="bi bi-clock text-primary me-2"></i>Horas y días trabajados
+                                    </h5>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="horasDiurnas" class="form-label fw-semibold">Horas extras diurnas</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="horasDiurnas" name="horasDiurnas" min="0" step="0.01" value="0">
+                                                <span class="input-group-text">horas</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label for="horasNocturnas" class="form-label fw-semibold">Horas extras nocturnas</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="horasNocturnas" name="horasNocturnas" min="0" step="0.01" value="0">
+                                                <span class="input-group-text">horas</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label for="diasDescanso" class="form-label fw-semibold">Días de descanso trabajados</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="diasDescanso" name="diasDescanso" min="0" step="1" value="0">
+                                                <span class="input-group-text">días</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- HORAS NO PAGADAS -->
+                            <div class="card border mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-3">
+                                            <span class="badge text-bg-warning rounded-circle p-2">
+                                                <i class="bi bi-clock-history"></i>
+                                            </span>
+                                        </div>
+
+                                        <div class="flex-grow-1">
+                                            <h5 class="fw-bold mb-1">¿Tienes horas extras que todavía no te han pagado?</h5>
+                                            <p class="text-secondary mb-3">
+                                                Si trabajaste horas adicionales y todavía no te las han pagado, indícalo aquí.
+                                                El sistema utilizará la fecha y hora para determinar si corresponden a jornada diurna o nocturna.
+                                            </p>
+
+                                            <div class="d-flex gap-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="horasNoPagadas" id="horasNoPagadasSi" value="si">
+                                                    <label class="form-check-label fw-semibold" for="horasNoPagadasSi">
+                                                        Sí, tengo horas pendientes
+                                                    </label>
+                                                </div>
+
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="horasNoPagadas" id="horasNoPagadasNo" value="no" checked>
+                                                    <label class="form-check-label fw-semibold" for="horasNoPagadasNo">No</label>
+                                                </div>
+                                            </div>
+
+                                            <div id="seccionFechaHoraExtra" class="d-none">
+                                                <div class="alert alert-info border-0">
+                                                    <i class="bi bi-info-circle-fill me-2"></i>
+                                                    <strong>Selecciona la fecha y hora.</strong>
+                                                    <br>
+                                                    <small>El sistema determinará automáticamente si las horas fueron diurnas o nocturnas.</small>
+                                                </div>
+
+                                                <div class="row g-3">
+                                                    <div class="col-md-7">
+                                                        <label for="fechaHoraExtra" class="form-label fw-semibold">Fecha y hora trabajada</label>
+                                                        <input type="datetime-local" class="form-control form-control-lg" id="fechaHoraExtra" name="fechaHoraExtra">
+                                                    </div>
+
+                                                    <div id="seccionCantidadExtra" class="col-md-5 d-none">
+                                                        <label for="cantidadHorasPendientes" class="form-label fw-semibold">¿Cuántas horas trabajaste?</label>
+                                                        <div class="input-group input-group-lg">
+                                                            <input type="number" class="form-control" id="cantidadHorasPendientes" name="cantidadHorasPendientes" min="0" step="0.01" placeholder="Ej. 2">
+                                                            <span class="input-group-text">horas</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="alert alert-secondary border-0 mt-3 mb-0">
+                                                    <i class="bi bi-moon-stars me-2"></i>
+                                                    <strong>Importante:</strong>
+                                                    No necesitas decidir si fueron diurnas o nocturnas. El sistema lo determina utilizando la fecha y hora ingresadas.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ASUETOS -->
+                            <div class="card border mb-4">
+                                <div class="card-body">
+                                    <h5 class="fw-bold">
+                                        <i class="bi bi-calendar-check text-success me-2"></i>
+                                        ¿Trabajaste durante un día de asueto?
+                                    </h5>
+
+                                    <p class="text-secondary">
+                                        Indica si trabajaste durante alguno de los días de asueto establecidos.
+                                    </p>
+
+                                    <div class="d-flex gap-4 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="trabajoAsueto" id="asuetoSi" value="si">
+                                            <label class="form-check-label" for="asuetoSi">Sí, trabajé</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="trabajoAsueto" id="asuetoNo" value="no" checked>
+                                            <label class="form-check-label" for="asuetoNo">No trabajé</label>
+                                        </div>
+                                    </div>
+
+                                    <div id="seccionAsuetos" class="d-none">
+                                        <div class="alert alert-info border-0">
+                                            <i class="bi bi-check2-square me-2"></i>
+                                            Selecciona los días de asueto en los que trabajaste.
+                                        </div>
+
+                                        <div id="listaAsuetosCheck" class="row g-2"></div>
+
+                                        <input type="hidden" id="inputTotalDiasAsueto" name="inputTotalDiasAsueto" value="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VACACIONES -->
+                            <div class="card border mb-4">
+                                <div class="card-body">
+                                    <h5 class="fw-bold">
+                                        <i class="bi bi-sun text-warning me-2"></i>Vacaciones
+                                    </h5>
+
+                                    <p class="text-secondary">
+                                        Indica si tienes vacaciones pendientes de gozar.
+                                    </p>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <input type="radio" class="btn-check" name="vacaciones" id="noGozadas" value="no">
+                                            <label class="btn btn-outline-warning w-100 p-3" for="noGozadas">
+                                                <i class="bi bi-calendar-x fs-4 d-block mb-1"></i>
+                                                Tengo vacaciones pendientes
+                                            </label>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <input type="radio" class="btn-check" name="vacaciones" id="yaGozadas" value="si" checked>
+                                            <label class="btn btn-outline-success w-100 p-3" for="yaGozadas">
+                                                <i class="bi bi-calendar-check fs-4 d-block mb-1"></i>
+                                                Ya disfruté mis vacaciones
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div id="seccionFechaVacacion" class="d-none mt-3">
+                                        <label for="fechaUltimaVacacion" class="form-label fw-semibold">
+                                            ¿Cuándo fue tu última vacación?
+                                        </label>
+                                        <input type="date" class="form-control" id="fechaUltimaVacacion" name="fechaUltimaVacacion">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- HORARIO NOCTURNO -->
+                            <div class="alert alert-secondary border-0">
+                                <i class="bi bi-moon-stars-fill me-2"></i>
+                                <strong>¿Trabajaste de noche?</strong>
+                                <br>
+                                Las horas nocturnas tienen un tratamiento diferente al de las horas realizadas durante el día.
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Causa de Finalización -->
-        <div class="card">
-            <div class="card-header">2. Causa de Finalización de la Relación Laboral</div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label d-block fw-semibold">Tipo de Cierre:</label>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="tipoCierre" id="despido" value="despido" checked>
-                        <label class="form-check-label" for="despido">Despido injustificado</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="tipoCierre" id="renuncia" value="renuncia">
-                        <label class="form-check-label" for="renuncia">Renuncia voluntaria</label>
-                    </div>
-                </div>
+            <!-- CALCULAR -->
+            <div class="text-center my-4">
+                <button type="button" id="btnCalcular" class="btn btn-primary btn-lg px-5 shadow">
+                    <i class="bi bi-calculator-fill me-2"></i>
+                    Calcular mis prestaciones
+                </button>
+            </div>
+        </form>
 
-                <!-- Contenedor condicional para Renuncia Voluntaria -->
-                <div id="seccionRenuncia" class="p-3 border rounded bg-light d-none">
-                    <div class="mb-3">
-                        <label for="tipoCargo" class="form-label fw-semibold">Cargo desempeñado:</label>
-                        <select class="form-select" id="tipoCargo">
-                            <option value="empleado">Empleado / Operativo / Administrativo</option>
-                            <option value="jefatura">Jefatura / Gerencia</option>
-                        </select>
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label fw-semibold" id="labelAviso">¿Dio aviso con al menos 15 días de anticipación?</label>
+        <!-- RESULTADOS -->
+        <div id="panelResultados" class="d-none">
+            <div class="card border-0 shadow-lg">
+
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-1 me-3">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
                         <div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="avisoPrevio" id="avisoSi" value="si" checked>
-                                <label class="form-check-label" for="avisoSi">Sí</label>
+                            <h2 class="h4 mb-1 fw-bold">Resultado de tu cálculo</h2>
+                            <p class="mb-0 opacity-75">Aquí puedes consultar el detalle de tus prestaciones.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-wallet2 me-2 text-primary"></i>Prestaciones
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border">
+                                <div class="card-body">
+                                    <div class="text-secondary">Vacaciones</div>
+                                    <div id="resVacacion" class="fs-3 fw-bold text-primary">$0.00</div>
+                                </div>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="avisoPrevio" id="avisoNo" value="no">
-                                <label class="form-check-label" for="avisoNo">No</label>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border">
+                                <div class="card-body">
+                                    <div class="text-secondary">Aguinaldo</div>
+                                    <div id="resAguinaldo" class="fs-3 fw-bold text-primary">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border">
+                                <div id="labelIndemTitle" class="card-body">
+                                    <div class="text-secondary">Indemnización</div>
+                                    <div id="resIndemnizacion" class="fs-3 fw-bold text-primary">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border">
+                                <div class="card-body">
+                                    <div class="text-secondary">Horas extras diurnas</div>
+                                    <div id="resHEsDiurnas" class="fs-3 fw-bold text-primary">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border">
+                                <div class="card-body">
+                                    <div class="text-secondary">Horas extras nocturnas</div>
+                                    <div id="resHEsNocturnas" class="fs-3 fw-bold text-primary">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border">
+                                <div class="card-body">
+                                    <div class="text-secondary">Días de asueto</div>
+                                    <div id="resAsueto" class="fs-3 fw-bold text-primary">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border">
+                                <div class="card-body">
+                                    <div class="text-secondary">Días de descanso</div>
+                                    <div id="resDescanso" class="fs-3 fw-bold text-primary">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- TOTAL BRUTO -->
+                    <div class="alert alert-primary text-center border-0">
+                        <div class="text-uppercase small fw-bold">Total bruto</div>
+                        <div id="resTotal" class="display-5 fw-bold">$0.00</div>
+                    </div>
+
+                    <!-- DEDUCCIONES -->
+                    <div class="card border mb-4">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-dash-circle text-danger me-2"></i>Deducciones
+                            </h5>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <div class="text-secondary">ISSS</div>
+                                        <div id="resISSS" class="fw-bold fs-4">$0.00</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <div class="text-secondary">AFP</div>
+                                        <div id="resAFP" class="fw-bold fs-4">$0.00</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <div class="text-secondary">Total deducciones</div>
+                                        <div id="resDeducciones" class="fw-bold fs-4 text-danger">$0.00</div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
+
+                    <!-- TOTAL NETO -->
+                    <div class="alert alert-success text-center border-0 p-4">
+                        <div class="text-uppercase small fw-bold">Total que recibirías</div>
+                        <div id="resNeto" class="display-4 fw-bold">$0.00</div>
+                        <p class="mb-0 mt-2">Después de las deducciones correspondientes.</p>
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="d-flex flex-column flex-md-row gap-2 justify-content-center mt-4">
+                        <button type="button" id="btnDescargarPDF" class="btn btn-danger btn-lg">
+                            <i class="bi bi-file-earmark-pdf-fill me-2"></i>Descargar PDF
+                        </button>
+
+                        <button type="button" id="btnLimpiar" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i>Nuevo cálculo
+                        </button>
+                    </div>
+
                 </div>
             </div>
-        </div>
-
-        <!-- Jornadas Extraordinarias, Días Especiales y Vacaciones -->
-        <div class="card">
-            <div class="card-header">3. Jornadas Extraordinarias y Días Especiales</div>
-            <div class="card-body">
-                <div class="row g-3 mb-4">
-                    <div class="col-md-3">
-                        <label for="horasDiurnas" class="form-label">Horas extras diurnas</label>
-                        <input type="number" step="0.01" class="form-control" id="horasDiurnas" value="0">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="horasNocturnas" class="form-label">Horas extras nocturnas (7:00 p.m. a 6:00 a.m.)</label>
-                        <input type="number" step="0.01" class="form-control" id="horasNocturnas" value="0">
-                    </div>
-
-                    <!-- ====== SECCIÓN DE DÍAS DE ASUETO MODIFICADA ====== -->
-                    <div class="col-md-6">
-                        <label class="form-label">¿Trabajó en día de asueto?</label>
-                        <div class="mb-2">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="trabajoAsueto" id="asuetoSi" value="si">
-                                <label class="form-check-label" for="asuetoSi">Sí</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="trabajoAsueto" id="asuetoNo" value="no" checked>
-                                <label class="form-check-label" for="asuetoNo">No</label>
-                            </div>
-                        </div>
-
-                        <!-- Cuadritos de días de asueto (se muestran solo si marca "Sí") -->
-                        <div id="seccionAsuetos" class="d-none border rounded p-2 bg-light">
-                            <small class="text-muted d-block mb-2">Marque los días de asueto que trabajó:</small>
-                            <div id="listaAsuetosCheck" class="row g-2">
-                                <!-- Se genera dinámicamente con JS -->
-                            </div>
-                            <input type="hidden" id="diasAsueto" value="0">
-                        </div>
-                    </div>
-                    <!-- ====== FIN SECCIÓN MODIFICADA ====== -->
-
-                    <div class="col-md-3">
-                        <label for="diasDescanso" class="form-label">Días de descanso semanal laborados</label>
-                        <input type="number" class="form-control" id="diasDescanso" value="0">
-                    </div>
-                </div>
-
-<!-- Horas extras pendientes de pago -->
-<div class="border rounded p-3 mb-4 bg-light">
-    <h6 class="fw-bold">Horas extras pendientes de pago</h6>
-    <div class="row g-3 align-items-end">
-        <!-- Pregunta Sí / No -->
-        <div class="col-md-4">
-            <label class="form-label">¿Tiene horas extras no pagadas?</label>
-            <div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="horasNoPagadas" id="horasNoPagadasSi" value="si">
-                    <label class="form-check-label" for="horasNoPagadasSi">Sí</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="horasNoPagadas" id="horasNoPagadasNo" value="no" checked>
-                    <label class="form-check-label" for="horasNoPagadasNo">No</label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Selector de Fecha y Hora de Inicio -->
-        <div class="col-md-4 d-none" id="seccionFechaHoraExtra">
-            <label for="fechaHoraExtra" class="form-label">Fecha y hora de inicio</label>
-            <input type="datetime-local" class="form-control" id="fechaHoraExtra">
-        </div>
-
-        <!-- Cantidad de Horas Pendientes -->
-        <div class="col-md-4 d-none" id="seccionCantidadExtra">
-            <label for="cantidadHorasPendientes" class="form-label">Cantidad de horas</label>
-            <input type="number" min="0" step="0.5" class="form-control" id="cantidadHorasPendientes" value="0">
         </div>
     </div>
 
-    <small class="text-muted d-block mt-2">
-        Si responde "Sí", el sistema puede usar la fecha y hora para determinar el tipo de jornada.
-    </small>
-</div>
-
-                <!-- Sección de Vacaciones -->
-                <hr>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Estado de Vacaciones Anuales:</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="estadoVacacion" id="noGozadas" value="no_gozadas" checked>
-                        <label class="form-check-label" for="noGozadas">No he gozado de vacaciones en este periodo / Proporcionales pendientes</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="estadoVacacion" id="yaGozadas" value="ya_gozadas">
-                        <label class="form-check-label" for="yaGozadas">Ya gocé de las vacaciones del último periodo</label>
-                    </div>
-                </div>
-
-                <div id="seccionFechaVacacion" class="mb-3 d-none">
-                    <label for="fechaUltimaVacacion" class="form-label">Fecha en que le pagaron o gozó las vacaciones por última vez:</label>
-                    <input type="date" class="form-control w-50" id="fechaUltimaVacacion">
-                </div>
-                <div class="alert alert-info mb-0">
-                    <strong>Importante:</strong> la fecha de la última vacación debe seleccionarse con el calendario.
-                    Con ella se podrá determinar si corresponde un periodo completo o proporcional.
-                </div>
-            </div>
-        </div>
-
-        <!-- Aguinaldo -->
-        <div class="card">
-            <div class="card-header">4. Aguinaldo</div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Tipo de cálculo</label>
-                        <select class="form-select" id="tipoAguinaldo">
-                            <option value="automatico">Determinar automáticamente según las fechas</option>
-                            <option value="proporcional">Aguinaldo proporcional</option>
-                            <option value="completo">Aguinaldo completo</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="fechaCorteAguinaldo" class="form-label">Fecha para el cálculo</label>
-                        <input type="date" class="form-control" id="fechaCorteAguinaldo">
-                    </div>
-                </div>
-                <small class="text-muted d-block mt-2">
-                    La fecha de inicio y la fecha de finalización son las referencias principales para determinar el periodo correspondiente.
-                </small>
-            </div>
-        </div>
-
-        <!-- Indemnización -->
-        <div class="card" id="seccionIndemnizacion">
-            <div class="card-header">5. Indemnización</div>
-            <div class="card-body">
-                <div class="alert alert-warning mb-0">
-                    <strong>Despido injustificado:</strong> el cálculo se realizará considerando el salario,
-                    los años laborados y el límite aplicable según el sector económico seleccionado.
-                    <br>
-                    <strong>Renuncia voluntaria:</strong> esta sección no debe mostrar indemnización por despido.
-                </div>
-            </div>
-        </div>
-
-        <!-- Datos para el comprobante de liquidación-->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>6. Datos para el comprobante de liquidación</span>
-                <span class="badge bg-secondary">opcional</span>
-            </div>
-            <div class="card-body">
-                <p class="text-muted small">Solo se necesitan para generar el comprobante firmable. El cálculo y la vista previa en PDF funcionan sin llenarlos.</p>
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label for="nombrePatrono" class="form-label">Nombre o razón social del patrono</label>
-                        <input type="text" class="form-control" id="nombrePatrono" placeholder="Ej. PELSA Software">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="cargoDesempenado" class="form-label">Cargo desempeñado</label>
-                        <input type="text" class="form-control" id="cargoDesempenado" placeholder="Ej. Pentester / Desarrollador">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="fechaIngresoComprobante" class="form-label">Fecha de ingreso</label>
-                        <input type="date" class="form-control" id="fechaIngresoComprobante">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="fechaTerminacionComprobante" class="form-label">Fecha de terminación</label>
-                        <input type="date" class="form-control" id="fechaTerminacionComprobante">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botones de Acción 
-        <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center">
-            <button type="button" id="btnCalcular" class="btn btn-primary px-4">Calcular</button>
-            <button type="button" id="btnExportarPDF" class="btn btn-outline-secondary px-4">Exportar PDF</button>
-            <button type="button" id="btnComprobante" class="btn btn-outline-success px-4">Comprobante para firma</button>
-            <button type="button" id="btnLimpiar" class="btn btn-outline-danger px-4">Limpiar</button>
-        </div>
-    </form>
-    -->
-
-    <!-- PANEL DE RESULTADOS -->
-    <div id="panelResultados" class="card d-none">
-        <div class="card-header bg-success text-white">Panel de Resultados Automáticos</div>
-        <div class="card-body">
-            <div class="row text-center mb-4">
-                <div class="col-md-4 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <small class="text-muted d-block">VACACIÓN PROPORCIONAL</small>
-                        <h4 id="resVacacion" class="text-primary mb-0">$0.00</h4>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <small class="text-muted d-block">AGUINALDO PROPORCIONAL</small>
-                        <h4 id="resAguinaldo" class="text-primary mb-0">$0.00</h4>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <small class="text-muted d-block" id="labelIndemTitle">INDEMNIZACIÓN ART. 58</small>
-                        <h4 id="resIndemnizacion" class="text-primary mb-0">$0.00</h4>
-                    </div>
-                </div>
-            </div>
-
-            <div id="mensajeTipoCierre" class="alert alert-info d-none"></div>
-            <h5 class="mb-3 text-secondary">Detalle de prestaciones</h5>
-            <ul class="list-group mb-3">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Horas extras diurnas <small class="text-muted">Art. 169 CT</small>
-                    <span id="resHEsDiurnas" class="fw-bold">$0.00</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Horas extras nocturnas <small class="text-muted">Arts. 168 y 169 CT</small>
-                    <span id="resHEsNocturnas" class="fw-bold">$0.00</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Días de asueto laborados <small class="text-muted">Art. 192 CT</small>
-                    <span id="resAsueto" class="fw-bold">$0.00</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Días de descanso semanal laborados <small class="text-muted">Arts. 175 y 176 CT</small>
-                    <span id="resDescanso" class="fw-bold">$0.00</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white">
-                    <strong>Total devengado (bruto)</strong>
-                    <strong id="resTotal" class="fs-5">$0.00</strong>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const despido = document.getElementById("despido");
-    const renuncia = document.getElementById("renuncia");
-    const seccionRenuncia = document.getElementById("seccionRenuncia");
-    const tipoCargo = document.getElementById("tipoCargo");
-    const labelAviso = document.getElementById("labelAviso");
-    const avisoSi = document.getElementById("avisoSi");
-    const avisoNo = document.getElementById("avisoNo");
-
-    function actualizarRenuncia() {
-        if (renuncia.checked) {
-            // Mostrar las preguntas de renuncia
-            seccionRenuncia.classList.remove("d-none");
-        } else {
-            // Ocultarlas cuando sea despido
-            seccionRenuncia.classList.add("d-none");
-        }
-    }
-
-    function actualizarAviso() {
-        // El aviso cambia según el cargo seleccionado
-        if (tipoCargo.value === "jefatura") {
-            labelAviso.textContent =
-                "¿Dio aviso con al menos 30 días de anticipación?";
-        } else {
-            labelAviso.textContent =
-                "¿Dio aviso con al menos 15 días de anticipación?";
-        }
-
-        // Si selecciona "No", mostramos claramente la situación
-        let mensaje = document.getElementById("mensajeSinAviso");
-
-        if (avisoNo.checked) {
-            if (!mensaje) {
-                mensaje = document.createElement("div");
-                mensaje.id = "mensajeSinAviso";
-                mensaje.className = "alert alert-warning mt-3 mb-0";
-                seccionRenuncia.appendChild(mensaje);
-            }
-
-            mensaje.innerHTML =
-                "<strong>No dio aviso previo.</strong><br>" +
-                "Esta información será tomada en cuenta al momento de realizar el cálculo de la renuncia.";
-        } else if (mensaje) {
-            mensaje.remove();
-        }
-    }
-
-    // Eventos
-    despido.addEventListener("change", actualizarRenuncia);
-    renuncia.addEventListener("change", actualizarRenuncia);
-
-    tipoCargo.addEventListener("change", actualizarAviso);
-
-    avisoSi.addEventListener("change", actualizarAviso);
-    avisoNo.addEventListener("change", actualizarAviso);
-
-    // Estado inicial
-    actualizarRenuncia();
-    actualizarAviso();
-
-    // ============================================================
-    // DÍAS DE ASUETO: Generación de cuadritos por cada día
-    // ============================================================
-    const diasAsueto = [
-        { id: "asueto_1enero", nombre: "Primero de enero (Año Nuevo)" },
-        { id: "asueto_jueves_santo", nombre: "Jueves Santo" },
-        { id: "asueto_viernes_santo", nombre: "Viernes Santo" },
-        { id: "asueto_sabado_santo", nombre: "Sábado Santo" },
-        { id: "asueto_1mayo", nombre: "Primero de mayo (Día del Trabajo)" },
-        { id: "asueto_10mayo", nombre: "Diez de mayo (Día de las Madres)" },
-        { id: "asueto_17junio", nombre: "Diecisiete de junio (Día del Padre)" },
-        { id: "asueto_6agosto", nombre: "Seis de agosto (Divino Salvador del Mundo)" },
-        { id: "asueto_3agosto_ss", nombre: "Tres de agosto (San Salvador)" },
-        { id: "asueto_5agosto_ss", nombre: "Cinco de agosto (San Salvador)" },
-        { id: "asueto_patronales_municipio", nombre: "Fiestas patronales del municipio (día principal)" },
-        { id: "asueto_15sep", nombre: "Quince de septiembre (Independencia)" },
-        { id: "asueto_2nov", nombre: "Dos de noviembre (Día de los Difuntos)" },
-        { id: "asueto_21nov", nombre: "Veintiuno de noviembre (Fiestas de San Miguel)" },
-        { id: "asueto_25dic", nombre: "Veinticinco de diciembre (Navidad)" }
-
-    ];
-
-    const contenedorAsuetos = document.getElementById("listaAsuetosCheck");
-    const seccionAsuetos = document.getElementById("seccionAsuetos");
-    const radioAsuetoSi = document.getElementById("asuetoSi");
-    const radioAsuetoNo = document.getElementById("asuetoNo");
-    const inputDiasAsueto = document.getElementById("diasAsueto");
-
-    // Generar los checkboxes
-    diasAsueto.forEach(function (dia) {
-        const col = document.createElement("div");
-        col.className = "col-md-6";
-
-        const formCheck = document.createElement("div");
-        formCheck.className = "form-check asueto-item";
-
-        const checkbox = document.createElement("input");
-        checkbox.className = "form-check-input asueto-check";
-        checkbox.type = "checkbox";
-        checkbox.id = dia.id;
-        checkbox.value = dia.nombre;
-
-        const label = document.createElement("label");
-        label.className = "form-check-label";
-        label.htmlFor = dia.id;
-        label.textContent = dia.nombre;
-
-        // Resaltar el 21 de noviembre
-        if (dia.id === "asueto_21nov") {
-            label.classList.add("fw-bold", "text-primary");
-        }
-
-        formCheck.appendChild(checkbox);
-        formCheck.appendChild(label);
-        col.appendChild(formCheck);
-        contenedorAsuetos.appendChild(col);
-
-        // Al cambiar cualquier checkbox, actualizamos el contador
-        checkbox.addEventListener("change", actualizarContadorAsuetos);
-    });
-
-    // Mostrar u ocultar la sección según Sí/No
-    radioAsuetoSi.addEventListener("change", function () {
-        if (radioAsuetoSi.checked) {
-            seccionAsuetos.classList.remove("d-none");
-        }
-    });
-
-    radioAsuetoNo.addEventListener("change", function () {
-        if (radioAsuetoNo.checked) {
-            seccionAsuetos.classList.add("d-none");
-            // Desmarcar todos los checkboxes
-            document.querySelectorAll(".asueto-check").forEach(function (cb) {
-                cb.checked = false;
-            });
-            inputDiasAsueto.value = 0;
-        }
-    });
-
-    // Actualiza el campo oculto con la cantidad de días marcados
-    function actualizarContadorAsuetos() {
-        const marcados = document.querySelectorAll(".asueto-check:checked").length;
-        inputDiasAsueto.value = marcados;
-    }
-});
-document.addEventListener("DOMContentLoaded", function () {
-        const radioSi = document.getElementById("horasNoPagadasSi");
-        const radioNo = document.getElementById("horasNoPagadasNo");
-        const seccionFecha = document.getElementById("seccionFechaHoraExtra");
-        const seccionCantidad = document.getElementById("seccionCantidadExtra");
-
-        function toggleSecciones() {
-            if (radioSi.checked) {
-                seccionFecha.classList.remove("d-none");
-                seccionCantidad.classList.remove("d-none");
-            } else {
-                seccionFecha.classList.add("d-none");
-                seccionCantidad.classList.add("d-none");
-            }
-        }
-
-        radioSi.addEventListener("change", toggleSecciones);
-        radioNo.addEventListener("change", toggleSecciones);
-    });
-</script>
-
-<!-- Si tienes estos archivos JavaScript, deben cargarse después del HTML -->
-<script src="interfaz.js"></script>
-<script src="calculos.js"></script>
-<script src="main.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="calculos.js"></script>
+    <script src="interfaz.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
