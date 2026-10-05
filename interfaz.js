@@ -114,7 +114,6 @@ document.addEventListener("DOMContentLoaded", function () {
         { id: "asueto_3agosto_ss", nombre: "3 de agosto (San Salvador)" },
         { id: "asueto_5agosto_ss", nombre: "5 de agosto (San Salvador)" },
         { id: "asueto_6agosto", nombre: "6 de agosto (Divino Salvador del Mundo)" },
-        { id: "asueto_patronales_municipio", nombre: "Fiestas patronales del municipio" },
         { id: "asueto_15sep", nombre: "15 de septiembre (Independencia)" },
         { id: "asueto_2nov", nombre: "2 de noviembre (Día de los Difuntos)" },
         { id: "asueto_21nov", nombre: "21 de noviembre (Fiestas de San Miguel)" },
