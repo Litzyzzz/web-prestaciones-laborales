@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // TOTALES Y DEDUCCIONES
-            const totalHorasExtras =  totalHEsPendientesDiurnas + totalHEsPendientesNocturnas;
+            const totalHorasExtras =   montoHEDiurnas + montoHENocturnas;
             const totalBruto = totalHorasExtras + totalAsueto + totalDescanso + totalRV + totalPA + totalIndemnización;
             const baseCotizable = SBM + totalHorasExtras + totalAsueto + totalDescanso + totalRV;
 
@@ -142,10 +142,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("resAguinaldo").textContent = `$${formatearMoneda(totalPA)}`;
             document.getElementById("resIndemnizacion").textContent = `$${formatearMoneda(totalIndemnización)}`;
 
-            const totalDiurnasMostrar =  totalHEsPendientesDiurnas;
+            const totalDiurnasMostrar =  montoHEDiurnas;
             document.getElementById("resHEsDiurnas").textContent = `$${formatearMoneda(totalDiurnasMostrar)}`;
 
-            const totalNocturnasMostrar =  totalHEsPendientesNocturnas;
+            const totalNocturnasMostrar =  montoHENocturnas;
             document.getElementById("resHEsNocturnas").textContent = `$${formatearMoneda(totalNocturnasMostrar)}`;
 
             document.getElementById("resAsueto").textContent = `$${formatearMoneda(totalAsueto)}`;
