@@ -6,6 +6,13 @@ function calcularSBD(SBM) {
     return parseFloat((SBM / 30).toFixed(2));
 }
 
+// VALOR DE HORA DIURNA (HD)
+// Fórmula:
+// HD = SBD / 8
+function calcularHD(SBD) {
+    return parseFloat((SBD / 8).toFixed(2));
+}
+
 // REMUNERACIÓN POR HORA NOCTURNA (HN)
 // Fórmula:
 // HN = HD * 1.25
@@ -18,6 +25,111 @@ function calcularHN(HD) {
 // HE = Horas * Valor hora * 2
 function calcularHE(H, HL) {
     return parseFloat((H * HL * 2).toFixed(2));
+}
+
+// CALCULAR HORAS DIURNAS Y NOCTURNAS POR RANGO
+function calcularHorasExtrasPorRango(inicio, fin) {
+    if (!inicio || !fin) {
+        return {
+            valida: false,
+            horasDiurnas: 0,
+            horasNocturnas: 0,
+            clasificacion: "Inválida",
+            duracionTotal: 0
+        };
+    }
+
+    const horaInicio = inicio.split(":").map(Number);
+    const horaFin = fin.split(":").map(Number);
+
+    if (
+        horaInicio.length !== 2 ||
+        horaFin.length !== 2 ||
+        Number.isNaN(horaInicio[0]) ||
+        Number.isNaN(horaInicio[1]) ||
+        Number.isNaN(horaFin[0]) ||
+        Number.isNaN(horaFin[1]) ||
+        horaInicio[0] < 0 ||
+        horaInicio[0] > 23 ||
+        horaFin[0] < 0 ||
+        horaFin[0] > 23 ||
+        horaInicio[1] < 0 ||
+        horaInicio[1] > 59 ||
+        horaFin[1] < 0 ||
+        horaFin[1] > 59
+    ) {
+        return {
+            valida: false,
+            horasDiurnas: 0,
+            horasNocturnas: 0,
+            clasificacion: "Inválida",
+            duracionTotal: 0
+        };
+    }
+
+    const inicioMinutos = horaInicio[0] * 60 + horaInicio[1];
+    const finMinutos = horaFin[0] * 60 + horaFin[1];
+
+    if (inicioMinutos === finMinutos) {
+        return {
+            valida: false,
+            horasDiurnas: 0,
+            horasNocturnas: 0,
+            clasificacion: "Inválida",
+            duracionTotal: 0
+        };
+    }
+
+    let duracionTotal = finMinutos > inicioMinutos
+        ? finMinutos - inicioMinutos
+        : (24 * 60 - inicioMinutos) + finMinutos;
+
+    if (duracionTotal <= 0 || duracionTotal > 24 * 60) {
+        return {
+            valida: false,
+            horasDiurnas: 0,
+            horasNocturnas: 0,
+            clasificacion: "Inválida",
+            duracionTotal: 0
+        };
+    }
+
+    const segmentos = finMinutos > inicioMinutos
+        ? [[inicioMinutos, finMinutos]]
+        : [[inicioMinutos, 24 * 60], [0, finMinutos]];
+
+    const overlap = (segmentInicio, segmentFin, ventanaInicio, ventanaFin) => {
+        const inicio = Math.max(segmentInicio, ventanaInicio);
+        const fin = Math.min(segmentFin, ventanaFin);
+        return fin > inicio ? fin - inicio : 0;
+    };
+
+    let horasDiurnas = 0;
+    let horasNocturnas = 0;
+
+    segmentos.forEach(([segmentInicio, segmentFin]) => {
+        horasDiurnas += overlap(segmentInicio, segmentFin, 6 * 60, 19 * 60);
+        horasNocturnas += overlap(segmentInicio, segmentFin, 19 * 60, 24 * 60);
+        horasNocturnas += overlap(segmentInicio, segmentFin, 0, 6 * 60);
+    });
+
+    horasDiurnas = Number((horasDiurnas / 60).toFixed(2));
+    horasNocturnas = Number((horasNocturnas / 60).toFixed(2));
+
+    let clasificacion = "Diurna";
+    if (horasDiurnas > 0 && horasNocturnas > 0) {
+        clasificacion = "Mixta";
+    } else if (horasNocturnas > 0) {
+        clasificacion = "Nocturna";
+    }
+
+    return {
+        valida: true,
+        horasDiurnas,
+        horasNocturnas,
+        clasificacion,
+        duracionTotal: Number((duracionTotal / 60).toFixed(2))
+    };
 }
 
 // SALARIO EXTRAORDINARIO POR DÍA DE ASUETO

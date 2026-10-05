@@ -48,8 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const SBM = parseFloat(document.getElementById("salarioMensual")?.value) || 0;
             const añosLaborados = parseInt(anosLaboradosInput?.value) || 0;
             const mesesLaborados = parseInt(mesesLaboradosInput?.value) || 0;
-            const horasDiurnas = parseFloat(document.getElementById("horasDiurnas")?.value) || 0;
-            const horasNocturnas = parseFloat(document.getElementById("horasNocturnas")?.value) || 0;
             const díasAsuetoTrabajados = parseInt(document.getElementById("inputTotalDiasAsueto")?.value) || 0;
             const díasDescansoTrabajados = parseInt(document.getElementById("diasDescanso")?.value) || 0;
 
@@ -68,34 +66,33 @@ document.addEventListener("DOMContentLoaded", () => {
             const SBD = calcularSBD(SBM);
 
             // VALOR DE HORA DIURNA Y NOCTURNA
-            const HD = SBD / 8;
-            const HD_Nocturna = calcularHN(HD);
+            const HD = calcularHD(SBD);
+            const HN = calcularHN(HD);
 
-            // HORAS EXTRAS
-            const totalHEsDiurnas = calcularHE(horasDiurnas, HD);
-            const totalHEsNocturnas = calcularHE(horasNocturnas, HD_Nocturna);
-
-            // HORAS EXTRAS PENDIENTES
-            let totalHEsPendientesDiurnas = 0;
-            let totalHEsPendientesNocturnas = 0;
-
+            // HORAS EXTRAS PENDIENTES POR JORNADA
+            let totalHorasDiurnasPendientes = 0;
+            let totalHorasNocturnasPendientes = 0;
             const radioHorasNoPagadasSi = document.getElementById("horasNoPagadasSi");
 
             if (radioHorasNoPagadasSi && radioHorasNoPagadasSi.checked) {
-                const fechaHoraExtraInput = document.getElementById("fechaHoraExtra");
-                const cantidadHorasInput = document.getElementById("cantidadHorasPendientes");
+                document.querySelectorAll(".hora-extra-row").forEach((fila) => {
+                    const fecha = fila.querySelector(".hora-extra-fecha")?.value;
+                    const inicio = fila.querySelector(".hora-extra-inicio")?.value;
+                    const fin = fila.querySelector(".hora-extra-fin")?.value;
 
-                const fechaHoraExtraStr = fechaHoraExtraInput ? fechaHoraExtraInput.value : "";
-                const cantidadHorasPendientes = cantidadHorasInput ? parseFloat(cantidadHorasInput.value) || 0 : 0;
+                    if (!fecha || !inicio || !fin) return;
 
-                const esNoct = esHoraNocturna(fechaHoraExtraStr);
+                    const resultado = calcularHorasExtrasPorRango(inicio, fin);
+                    if (!resultado.valida) return;
 
-                if (esNoct) {
-                    totalHEsPendientesNocturnas = calcularHE(cantidadHorasPendientes, HD_Nocturna);
-                } else {
-                    totalHEsPendientesDiurnas = calcularHE(cantidadHorasPendientes, HD);
-                }
+                    totalHorasDiurnasPendientes += resultado.horasDiurnas;
+                    totalHorasNocturnasPendientes += resultado.horasNocturnas;
+                });
             }
+
+            const montoHEDiurnas = calcularHE(totalHorasDiurnasPendientes, HD);
+            const montoHENocturnas = calcularHE(totalHorasNocturnasPendientes, HN);
+            const totalHorasExtrasPendientes = montoHEDiurnas + montoHENocturnas;
 
             // DÍAS DE ASUETO Y DESCANSO
             const totalAsueto = calcularSE(SBD) * díasAsuetoTrabajados;
@@ -179,149 +176,191 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnDescargarPDF = document.getElementById("btnDescargarPDF");
 
     if (btnDescargarPDF) {
-        btnDescargarPDF.addEventListener("click", () => {
+        btnDescargarPDF.addEventListener("click", async () => {
             const nombreTrabajador = document.getElementById("nombreTrabajador")?.value || "No especificado";
-            const nombrePatrono = document.getElementById("nombrePatrono")?.value || "No especificado";
             const salario = parseFloat(document.getElementById("salarioMensual")?.value) || 0;
-            const cargoDesempenado = document.getElementById("tipoCargo")?.value || "No especificado";
+            const cargoDesempenado = document.getElementById("cargoEspecifico")?.value || "No especificado";
+            const nombrePatrono = document.getElementById("nombrePatrono")?.value || "No especificado";
 
             const anos = parseInt(document.getElementById("anosLaborados")?.value) || 0;
             const meses = parseInt(document.getElementById("mesesLaborados")?.value) || 0;
 
             const radioTipoCierre = document.querySelector('input[name="tipoCierre"]:checked');
             const tipoCierre = radioTipoCierre ? radioTipoCierre.value : "despido";
-            const tipoCierreTexto = tipoCierre === "renuncia" ? "Renuncia voluntaria" : "Despido injustificado";
+            const tipoCierreTexto = tipoCierre === "renuncia" ? "Renuncia voluntaria" : "Despido sin causa justificada";
 
-            const ventanaPDF = window.open("", "_blank", "width=900,height=700");
+            const fechaTerminacionVal = document.getElementById("fechaTerminacion")?.value || new Date().toLocaleDateString("es-SV");
+            const fechaEmision = new Date().toLocaleDateString("es-SV");
 
-            if (!ventanaPDF) {
-                alert("El navegador bloqueó la ventana emergente. Permite ventanas emergentes para generar el reporte.");
-                return;
-            }
+            const limpiarMonto = (id) => {
+                const texto = document.getElementById(id)?.textContent || "$0.00";
+                return parseFloat(texto.replace(/[^0-9.-]+/g, "")) || 0;
+            };
 
-            ventanaPDF.document.write(`
-                <!DOCTYPE html>
-                <html lang="es">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Reporte de Liquidación Laboral</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                    <style>
-                        body { font-family: Arial, sans-serif; background: #ffffff; color: #333; padding: 40px; }
-                        .reporte { max-width: 900px; margin: auto; }
-                        .header-title { font-weight: bold; color: #0d6efd; }
-                        .subtitulo { color: #6c757d; }
-                        .datos { border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-top: 25px; }
-                        .table th { background-color: #f8f9fa !important; }
-                        .total-bruto { font-size: 18px; }
-                        .deducciones { color: #dc3545; }
-                        .neto { background-color: #198754; color: white; font-size: 20px; font-weight: bold; }
-                        .nota { font-size: 12px; color: #6c757d; margin-top: 30px; }
-                        .botones { margin-top: 30px; }
-                        @media print {
-                            body { padding: 0; }
-                            .botones { display: none !important; }
-                            .reporte { max-width: 100%; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="reporte">
-                        <div class="text-center">
-                            <h3 class="header-title mb-1">CÁLCULO DE PRESTACIONES LABORALES</h3>
-                            <p class="subtitulo mb-2">El Salvador</p>
-                            <p class="text-muted">Reporte de liquidación laboral</p>
+            const totalRV = limpiarMonto("resVacacion");
+            const totalPA = limpiarMonto("resAguinaldo");
+            const totalIndemnizacion = limpiarMonto("resIndemnizacion");
+            const totalDiurnasMostrar = limpiarMonto("resHEsDiurnas");
+            const totalNocturnasMostrar = limpiarMonto("resHEsNocturnas");
+            const totalAsueto = limpiarMonto("resAsueto");
+            const totalDescanso = limpiarMonto("resDescanso");
+            const totalBruto = limpiarMonto("resTotal");
+            const totalISSS = Math.abs(limpiarMonto("resISSS"));
+            const totalAFP = Math.abs(limpiarMonto("resAFP"));
+            const netoPagar = limpiarMonto("resNeto");
+
+            const contenedor = document.createElement("div");
+            contenedor.style.position = "absolute";
+            contenedor.style.left = "-9999px";
+            contenedor.style.top = "0";
+            contenedor.style.width = "800px";
+            contenedor.style.background = "#ffffff";
+            contenedor.style.padding = "40px";
+            contenedor.style.fontFamily = "Arial, sans-serif";
+            contenedor.style.fontSize = "12px";
+            contenedor.style.color = "#000000";
+
+            contenedor.innerHTML = `
+                <div style="width: 720px; height: 1050px; padding-bottom: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h3 style="font-weight: bold; text-transform: uppercase; font-size: 16px; margin-bottom: 5px;">COMPROBANTE DE LIQUIDACION DE PRESTACIONES LABORALES</h3>
+                            <p style="color: #6c757d; margin: 0; font-size: 12px;">República de El Salvador</p>
                         </div>
-                        <hr>
-                        <div class="datos">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Trabajador(a):</strong> ${nombreTrabajador}</p>
-                                    <p><strong>Salario mensual:</strong> $${formatearMoneda(salario)}</p>
-                                    <p><strong>Antigüedad:</strong> ${anos} años, ${meses} meses</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Patrono:</strong> ${nombrePatrono}</p>
-                                    <p><strong>Cargo:</strong> ${cargoDesempenado}</p>
-                                    <p><strong>Tipo de terminación:</strong> ${tipoCierreTexto}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <h5 class="mt-4 mb-3">Desglose de prestaciones</h5>
-                        <table class="table table-bordered">
+
+                        <div style="background-color: #f8f9fa; font-weight: bold; padding: 6px 10px; border-left: 4px solid #0d6efd; margin-top: 15px; margin-bottom: 10px; font-size: 13px;">I. Datos de las partes</div>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px;">
+                            <tr>
+                                <td style="width: 25%; padding: 5px;"><strong>Persona trabajadora:</strong></td>
+                                <td style="width: 25%; padding: 5px;">${nombreTrabajador}</td>
+                                <td style="width: 25%; padding: 5px;"><strong>Patrono:</strong></td>
+                                <td style="width: 25%; padding: 5px;">${nombrePatrono}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px;"><strong>Cargo desempeñado:</strong></td>
+                                <td style="padding: 5px;">${cargoDesempenado}</td>
+                                <td style="padding: 5px;"><strong>Salario mensual:</strong></td>
+                                <td style="padding: 5px;">$${formatearMoneda(salario)}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px;"><strong>Antigüedad reconocida:</strong></td>
+                                <td style="padding: 5px;">${anos} años, ${meses} meses</td>
+                                <td style="padding: 5px;"><strong>Fecha de terminación:</strong></td>
+                                <td style="padding: 5px;">${fechaTerminacionVal}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td style="padding: 5px;"><strong>Causa de terminación:</strong></td>
+                                <td style="padding: 5px;">${tipoCierreTexto}</td>
+                            </tr>
+                        </table>
+
+                        <div style="background-color: #f8f9fa; font-weight: bold; padding: 6px 10px; border-left: 4px solid #0d6efd; margin-top: 15px; margin-bottom: 10px; font-size: 13px;">II. Desglose de prestaciones liquidadas</div>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px;" border="1" cellpadding="6" cellspacing="0">
+                            <thead>
+                                <tr style="background-color: #f8f9fa;">
+                                    <th style="text-align: left;">Concepto</th>
+                                    <th style="text-align: left;">Base legal</th>
+                                    <th style="text-align: right;">Monto</th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr>
-                                    <td><strong>Horas extras diurnas</strong></td>
-                                    <td class="text-end">${document.getElementById("resHEsDiurnas")?.textContent || "$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Horas extras nocturnas</strong></td>
-                                    <td class="text-end">${document.getElementById("resHEsNocturnas")?.textContent || "$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Días de asueto</strong></td>
-                                    <td class="text-end">${document.getElementById("resAsueto")?.textContent || "$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Días de descanso</strong></td>
-                                    <td class="text-end">${document.getElementById("resDescanso")?.textContent || "$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Vacación proporcional</strong></td>
-                                    <td class="text-end">${document.getElementById("resVacacion")?.textContent || "$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Aguinaldo proporcional</strong></td>
-                                    <td class="text-end">${document.getElementById("resAguinaldo")?.textContent || "$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Indemnización / compensación</strong></td>
-                                    <td class="text-end">${document.getElementById("resIndemnizacion")?.textContent || "$0.00"}</td>
-                                </tr>
-                                <tr class="table-dark">
-                                    <td><strong>TOTAL BRUTO</strong></td>
-                                    <td class="text-end total-bruto"><strong>${document.getElementById("resTotal")?.textContent || "$0.00"}</strong></td>
+                                <tr><td>Vacación proporcional</td><td>Arts. 177 y 187 CT</td><td style="text-align: right;">$${formatearMoneda(totalRV)}</td></tr>
+                                <tr><td>Aguinaldo proporcional</td><td>Arts. 196-198 CT</td><td style="text-align: right;">$${formatearMoneda(totalPA)}</td></tr>
+                                <tr><td>Indemnización / compensación</td><td>Art. 58 CT</td><td style="text-align: right;">$${formatearMoneda(totalIndemnizacion)}</td></tr>
+                                <tr><td>Horas extras diurnas</td><td>Art. 169 CT</td><td style="text-align: right;">$${formatearMoneda(totalDiurnasMostrar)}</td></tr>
+                                <tr><td>Horas extras nocturnas</td><td>Arts. 168 y 169 CT</td><td style="text-align: right;">$${formatearMoneda(totalNocturnasMostrar)}</td></tr>
+                                <tr><td>Días de asueto laborados</td><td>Art. 192 CT</td><td style="text-align: right;">$${formatearMoneda(totalAsueto)}</td></tr>
+                                <tr><td>Días de descanso semanal laborados</td><td>Arts. 175 y 176 CT</td><td style="text-align: right;">$${formatearMoneda(totalDescanso)}</td></tr>
+                                <tr style="background-color: #343a40; color: #fff;">
+                                    <td colspan="2"><strong>TOTAL DEVENGADO (BRUTO)</strong></td>
+                                    <td style="text-align: right;"><strong>$${formatearMoneda(totalBruto)}</strong></td>
                                 </tr>
                             </tbody>
                         </table>
-                        <h5 class="mt-4 mb-3">Deducciones</h5>
-                        <table class="table table-bordered">
+
+                        <div style="background-color: #f8f9fa; font-weight: bold; padding: 6px 10px; border-left: 4px solid #0d6efd; margin-top: 15px; margin-bottom: 10px; font-size: 13px;">III. Deducciones de ley y neto a pagar</div>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;" border="1" cellpadding="6" cellspacing="0">
                             <tbody>
-                                <tr>
-                                    <td>ISSS</td>
-                                    <td class="text-end deducciones">${document.getElementById("resISSS")?.textContent || "-$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td>AFP</td>
-                                    <td class="text-end deducciones">${document.getElementById("resAFP")?.textContent || "-$0.00"}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Total de deducciones</strong></td>
-                                    <td class="text-end deducciones"><strong>${document.getElementById("resDeducciones")?.textContent || "-$0.00"}</strong></td>
+                                <tr><td>Cotización ISSS (trabajador)</td><td>Reglamento del ISSS, Art. 29</td><td style="text-align: right; color: #dc3545;">-$${formatearMoneda(totalISSS)}</td></tr>
+                                <tr><td>Cotización AFP (trabajador)</td><td>Ley del Sistema de Ahorro para Pensiones</td><td style="text-align: right; color: #dc3545;">-$${formatearMoneda(totalAFP)}</td></tr>
+                                <tr style="background-color: #d1e7dd;">
+                                    <td colspan="2"><strong>MONTO NETO A PAGAR</strong></td>
+                                    <td style="text-align: right;"><strong>$${formatearMoneda(netoPagar)}</strong></td>
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="neto rounded p-3 mt-4">
-                            <div class="d-flex justify-content-between">
-                                <span>NETO A PAGAR</span>
-                                <span>${document.getElementById("resNeto")?.textContent || "$0.00"}</span>
+                    </div>
+                    <div style="text-align: right; color: #6c757d; font-size: 11px;">Generado el ${fechaEmision} — 1/2</div>
+                </div>
+
+                <div style="width: 720px; height: 1050px; padding-top: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; page-break-before: always;">
+                    <div>
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <h3 style="font-weight: bold; text-transform: uppercase; font-size: 16px; margin-bottom: 5px;">COMPROBANTE DE LIQUIDACION DE PRESTACIONES LABORALES</h3>
+                            <p style="color: #6c757d; margin: 0; font-size: 12px;">República de El Salvador</p>
+                        </div>
+
+                        <div style="background-color: #f8f9fa; font-weight: bold; padding: 6px 10px; border-left: 4px solid #0d6efd; margin-top: 15px; margin-bottom: 15px; font-size: 13px;">IV. Declaración</div>
+                        <p style="text-align: justify; line-height: 1.6; margin-bottom: 40px; font-size: 12px;">
+                            La persona trabajadora <strong>${nombreTrabajador}</strong> declara haber recibido el detalle de las prestaciones económicas que anteceden, calculadas conforme al Código de Trabajo de El Salvador, así como el desglose de las retenciones de ley aplicadas y el monto neto resultante. Este comprobante se suscribe en la fecha que se indica al pie de las firmas.
+                        </p>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 60px; margin-bottom: 40px; font-size: 12px;">
+                            <div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 8px;">
+                                <strong>Persona trabajadora</strong><br>
+                                Nombre: __________________<br>
+                                DUI: _____________________<br>
+                                Fecha: ___________________
+                            </div>
+                            <div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 8px;">
+                                <strong>Patrono o representante legal</strong><br>
+                                Nombre: __________________<br>
+                                DUI: _____________________<br>
+                                Fecha: ___________________
                             </div>
                         </div>
-                        <p class="text-end text-muted mt-4">Fecha de emisión: ${new Date().toLocaleDateString("es-SV")}</p>
-                        <div class="nota">
-                            <strong>Nota:</strong> Este documento presenta una estimación basada en los datos proporcionados por el usuario. No constituye una liquidación laboral oficial.
-                        </div>
-                        <div class="botones text-center">
-                            <button class="btn btn-primary me-2" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-                            <button class="btn btn-secondary" onclick="window.close()">Cerrar</button>
+
+                        <div style="font-size: 11px; color: #333; text-align: justify; border-top: 1px solid #ccc; padding-top: 12px; margin-top: 40px; line-height: 1.4;">
+                            <strong>Advertencia legal:</strong> Este documento es un comprobante informativo del cálculo de prestaciones y NO constituye el finiquito laboral. Conforme al Art. 402 inciso 2 del Código de Trabajo, la renuncia, la terminación por mutuo consentimiento o el recibo de pago de prestaciones por despido sin causa legal solo tienen valor probatorio si constan en hojas extendidas por la Dirección General de Inspección de Trabajo o por los jueces con competencia en materia laboral, utilizadas dentro de los diez días siguientes a su expedición, o bien en documento privado autenticado ante notario. Se recomienda asesoría legal profesional antes de suscribir cualquier finiquito.
                         </div>
                     </div>
-                </body>
-                </html>
-            `);
+                    <div style="text-align: right; color: #6c757d; font-size: 11px;">Generado el ${fechaEmision} — 2/2</div>
+                </div>
+            `;
 
-            ventanaPDF.document.close();
+            document.body.appendChild(contenedor);
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save('Comprobante_Liquidacion_Laboral.pdf');
+            } catch (error) {
+                console.error("Error al generar el PDF:", error);
+                alert("Ocurrió un error al generar el archivo PDF.");
+            } finally {
+                document.body.removeChild(contenedor);
+            }
         });
     }
 });

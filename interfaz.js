@@ -234,18 +234,102 @@ document.addEventListener("DOMContentLoaded", function () {
     const radioSiHP = document.getElementById("horasNoPagadasSi");
     const radioNoHP = document.getElementById("horasNoPagadasNo");
     const seccionFechaHP = document.getElementById("seccionFechaHoraExtra");
-    const seccionCantidadHP = document.getElementById("seccionCantidadExtra");
+    const tablaHorasPendientes = document.getElementById("tablaHorasPendientes");
+    const btnAgregarJornada = document.getElementById("btnAgregarJornada");
+
+    function actualizarTotalesHorasPendientes() {
+        const filas = document.querySelectorAll(".hora-extra-row");
+        let totalDiurnas = 0;
+        let totalNocturnas = 0;
+
+        filas.forEach((fila) => {
+            const fecha = fila.querySelector(".hora-extra-fecha")?.value;
+            const inicio = fila.querySelector(".hora-extra-inicio")?.value;
+            const fin = fila.querySelector(".hora-extra-fin")?.value;
+
+            if (!fecha || !inicio || !fin) return;
+
+            const resultado = calcularHorasExtrasPorRango(inicio, fin);
+            const etiqueta = fila.querySelector(".hora-extra-clasificacion");
+            const diurnasCell = fila.querySelector(".hora-extra-diurnas");
+            const nocturnasCell = fila.querySelector(".hora-extra-nocturnas");
+
+            if (!resultado.valida) {
+                if (etiqueta) etiqueta.textContent = "Inválida";
+                if (diurnasCell) diurnasCell.textContent = "0.00 h";
+                if (nocturnasCell) nocturnasCell.textContent = "0.00 h";
+                return;
+            }
+
+            if (etiqueta) etiqueta.textContent = resultado.clasificacion;
+            if (diurnasCell) diurnasCell.textContent = `${resultado.horasDiurnas.toFixed(2)} h`;
+            if (nocturnasCell) nocturnasCell.textContent = `${resultado.horasNocturnas.toFixed(2)} h`;
+
+            totalDiurnas += resultado.horasDiurnas;
+            totalNocturnas += resultado.horasNocturnas;
+        });
+
+        const totalGeneral = totalDiurnas + totalNocturnas;
+
+        const diurnasEl = document.getElementById("totalHorasDiurnasPendientes");
+        const nocturnasEl = document.getElementById("totalHorasNocturnasPendientes");
+        const generalEl = document.getElementById("totalHorasPendientesGenerales");
+
+        if (diurnasEl) diurnasEl.textContent = `${(radioSiHP && radioSiHP.checked ? totalDiurnas : 0).toFixed(2)} h`;
+        if (nocturnasEl) nocturnasEl.textContent = `${(radioSiHP && radioSiHP.checked ? totalNocturnas : 0).toFixed(2)} h`;
+        if (generalEl) generalEl.textContent = `${(radioSiHP && radioSiHP.checked ? totalGeneral : 0).toFixed(2)} h`;
+    }
+
+    function crearRegistroHoraExtra() {
+        if (!tablaHorasPendientes) return;
+
+        const fila = document.createElement("tr");
+        fila.className = "hora-extra-row";
+        fila.innerHTML = `
+            <td><input type="date" class="form-control form-control-sm hora-extra-fecha" value=""></td>
+            <td><input type="time" class="form-control form-control-sm hora-extra-inicio" value=""></td>
+            <td><input type="time" class="form-control form-control-sm hora-extra-fin" value=""></td>
+            <td><span class="badge text-bg-light hora-extra-clasificacion">Pendiente</span></td>
+            <td class="hora-extra-diurnas">0.00 h</td>
+            <td class="hora-extra-nocturnas">0.00 h</td>
+            <td><button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-jornada" aria-label="Eliminar jornada"><i class="bi bi-trash"></i></button></td>
+        `;
+
+        const inputs = fila.querySelectorAll("input");
+        inputs.forEach((input) => {
+            input.addEventListener("input", actualizarTotalesHorasPendientes);
+            input.addEventListener("change", actualizarTotalesHorasPendientes);
+        });
+
+        const btnEliminar = fila.querySelector(".btn-eliminar-jornada");
+        if (btnEliminar) {
+            btnEliminar.addEventListener("click", () => {
+                fila.remove();
+                actualizarTotalesHorasPendientes();
+            });
+        }
+
+        tablaHorasPendientes.appendChild(fila);
+        actualizarTotalesHorasPendientes();
+    }
 
     function toggleHorasPendientes() {
-
         const mostrar = radioSiHP && radioSiHP.checked;
 
         if (seccionFechaHP) {
             seccionFechaHP.classList.toggle("d-none", !mostrar);
         }
 
-        if (seccionCantidadHP) {
-            seccionCantidadHP.classList.toggle("d-none", !mostrar);
+        if (!mostrar) {
+            const diurnasEl = document.getElementById("totalHorasDiurnasPendientes");
+            const nocturnasEl = document.getElementById("totalHorasNocturnasPendientes");
+            const generalEl = document.getElementById("totalHorasPendientesGenerales");
+
+            if (diurnasEl) diurnasEl.textContent = "0.00 h";
+            if (nocturnasEl) nocturnasEl.textContent = "0.00 h";
+            if (generalEl) generalEl.textContent = "0.00 h";
+        } else {
+            actualizarTotalesHorasPendientes();
         }
     }
 
@@ -257,6 +341,11 @@ document.addEventListener("DOMContentLoaded", function () {
         radioNoHP.addEventListener("change", toggleHorasPendientes);
     }
 
+    if (btnAgregarJornada) {
+        btnAgregarJornada.addEventListener("click", crearRegistroHoraExtra);
+    }
+
+    crearRegistroHoraExtra();
     toggleHorasPendientes();
 
 
@@ -264,30 +353,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // VACACIONES
     // ==========================================
 
-    const noGozadas = document.getElementById("noGozadas");
-    const yaGozadas = document.getElementById("yaGozadas");
-    const seccionFechaVacacion = document.getElementById("seccionFechaVacacion");
+    const fechaUltimaVacacion =
+        document.getElementById("fechaUltimaVacacion");
 
-    function toggleVacaciones() {
-
-        if (!seccionFechaVacacion) return;
-
-        if (yaGozadas && yaGozadas.checked) {
-            seccionFechaVacacion.classList.remove("d-none");
-        } else {
-            seccionFechaVacacion.classList.add("d-none");
-        }
-    }
-
-    if (noGozadas) {
-        noGozadas.addEventListener("change", toggleVacaciones);
-    }
-
-    if (yaGozadas) {
-        yaGozadas.addEventListener("change", toggleVacaciones);
-    }
-
-    toggleVacaciones();
+    // La fecha es obligatoria independientemente
+    // de si existen vacaciones pendientes.
+    if (fechaUltimaVacacion) {
+        fechaUltimaVacacion.required = true;
+    };
 
     if (btnLimpiar) {
         btnLimpiar.addEventListener("click", () => {
