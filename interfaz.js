@@ -4,6 +4,24 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
+    function obtenerFechaActual() {
+        const hoy = new Date();
+        const año = hoy.getFullYear();
+        const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+        const dia = String(hoy.getDate()).padStart(2, "0");
+
+        return `${año}-${mes}-${dia}`;
+    }
+
+    function limitarFechaHastaHoy(input) {
+        input.max = obtenerFechaActual();
+        input.addEventListener("focus", function () {
+            input.max = obtenerFechaActual();
+        });
+    }
+
+    document.querySelectorAll('input[type="date"]').forEach(limitarFechaHastaHoy);
+
     // ==========================================
     // TIPO DE TERMINACIÓN
     // ==========================================
@@ -285,7 +303,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const fila = document.createElement("tr");
         fila.className = "hora-extra-row";
         fila.innerHTML = `
-            <td><input type="date" class="form-control form-control-sm hora-extra-fecha" value=""></td>
+            <td><input type="date" class="form-control form-control-sm hora-extra-fecha" value="" max="${obtenerFechaActual()}"></td>
             <td><input type="time" class="form-control form-control-sm hora-extra-inicio" value=""></td>
             <td><input type="time" class="form-control form-control-sm hora-extra-fin" value=""></td>
             <td><span class="badge text-bg-light hora-extra-clasificacion">Pendiente</span></td>
@@ -293,6 +311,8 @@ document.addEventListener("DOMContentLoaded", function () {
             <td class="hora-extra-nocturnas">0.00 h</td>
             <td><button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-jornada" aria-label="Eliminar jornada"><i class="bi bi-trash"></i></button></td>
         `;
+
+        limitarFechaHastaHoy(fila.querySelector(".hora-extra-fecha"));
 
         const inputs = fila.querySelectorAll("input");
         inputs.forEach((input) => {
