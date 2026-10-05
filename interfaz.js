@@ -264,30 +264,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // VACACIONES
     // ==========================================
 
-    const noGozadas = document.getElementById("noGozadas");
-    const yaGozadas = document.getElementById("yaGozadas");
-    const seccionFechaVacacion = document.getElementById("seccionFechaVacacion");
+    const fechaUltimaVacacion =
+        document.getElementById("fechaUltimaVacacion");
 
-    function toggleVacaciones() {
-
-        if (!seccionFechaVacacion) return;
-
-        if (yaGozadas && yaGozadas.checked) {
-            seccionFechaVacacion.classList.remove("d-none");
-        } else {
-            seccionFechaVacacion.classList.add("d-none");
-        }
-    }
-
-    if (noGozadas) {
-        noGozadas.addEventListener("change", toggleVacaciones);
-    }
-
-    if (yaGozadas) {
-        yaGozadas.addEventListener("change", toggleVacaciones);
-    }
-
-    toggleVacaciones();
+    // La fecha es obligatoria independientemente
+    // de si existen vacaciones pendientes.
+    if (fechaUltimaVacacion) {
+        fechaUltimaVacacion.required = true;
+    };
 
     if (btnLimpiar) {
         btnLimpiar.addEventListener("click", () => {
