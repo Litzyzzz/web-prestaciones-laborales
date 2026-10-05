@@ -1,7 +1,7 @@
 // ==========================================
 // MÓDULO DE INTERFAZ Y EVENTOS VISUALES
 // ==========================================
-
+//cometario random de prueba
 document.addEventListener("DOMContentLoaded", function () {
 
     function obtenerFechaActual() {
