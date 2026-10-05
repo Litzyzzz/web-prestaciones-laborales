@@ -48,8 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const SBM = parseFloat(document.getElementById("salarioMensual")?.value) || 0;
             const añosLaborados = parseInt(anosLaboradosInput?.value) || 0;
             const mesesLaborados = parseInt(mesesLaboradosInput?.value) || 0;
-            const horasDiurnas = parseFloat(document.getElementById("horasDiurnas")?.value) || 0;
-            const horasNocturnas = parseFloat(document.getElementById("horasNocturnas")?.value) || 0;
             const díasAsuetoTrabajados = parseInt(document.getElementById("inputTotalDiasAsueto")?.value) || 0;
             const díasDescansoTrabajados = parseInt(document.getElementById("diasDescanso")?.value) || 0;
 
@@ -68,34 +66,33 @@ document.addEventListener("DOMContentLoaded", () => {
             const SBD = calcularSBD(SBM);
 
             // VALOR DE HORA DIURNA Y NOCTURNA
-            const HD = SBD / 8;
-            const HD_Nocturna = calcularHN(HD);
+            const HD = calcularHD(SBD);
+            const HN = calcularHN(HD);
 
-            // HORAS EXTRAS
-            const totalHEsDiurnas = calcularHE(horasDiurnas, HD);
-            const totalHEsNocturnas = calcularHE(horasNocturnas, HD_Nocturna);
-
-            // HORAS EXTRAS PENDIENTES
-            let totalHEsPendientesDiurnas = 0;
-            let totalHEsPendientesNocturnas = 0;
-
+            // HORAS EXTRAS PENDIENTES POR JORNADA
+            let totalHorasDiurnasPendientes = 0;
+            let totalHorasNocturnasPendientes = 0;
             const radioHorasNoPagadasSi = document.getElementById("horasNoPagadasSi");
 
             if (radioHorasNoPagadasSi && radioHorasNoPagadasSi.checked) {
-                const fechaHoraExtraInput = document.getElementById("fechaHoraExtra");
-                const cantidadHorasInput = document.getElementById("cantidadHorasPendientes");
+                document.querySelectorAll(".hora-extra-row").forEach((fila) => {
+                    const fecha = fila.querySelector(".hora-extra-fecha")?.value;
+                    const inicio = fila.querySelector(".hora-extra-inicio")?.value;
+                    const fin = fila.querySelector(".hora-extra-fin")?.value;
 
-                const fechaHoraExtraStr = fechaHoraExtraInput ? fechaHoraExtraInput.value : "";
-                const cantidadHorasPendientes = cantidadHorasInput ? parseFloat(cantidadHorasInput.value) || 0 : 0;
+                    if (!fecha || !inicio || !fin) return;
 
-                const esNoct = esHoraNocturna(fechaHoraExtraStr);
+                    const resultado = calcularHorasExtrasPorRango(inicio, fin);
+                    if (!resultado.valida) return;
 
-                if (esNoct) {
-                    totalHEsPendientesNocturnas = calcularHE(cantidadHorasPendientes, HD_Nocturna);
-                } else {
-                    totalHEsPendientesDiurnas = calcularHE(cantidadHorasPendientes, HD);
-                }
+                    totalHorasDiurnasPendientes += resultado.horasDiurnas;
+                    totalHorasNocturnasPendientes += resultado.horasNocturnas;
+                });
             }
+
+            const montoHEDiurnas = calcularHE(totalHorasDiurnasPendientes, HD);
+            const montoHENocturnas = calcularHE(totalHorasNocturnasPendientes, HN);
+            const totalHorasExtrasPendientes = montoHEDiurnas + montoHENocturnas;
 
             // DÍAS DE ASUETO Y DESCANSO
             const totalAsueto = calcularSE(SBD) * díasAsuetoTrabajados;
@@ -131,9 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // TOTALES Y DEDUCCIONES
-            const totalHorasExtras = totalHEsDiurnas + totalHEsNocturnas + totalHEsPendientesDiurnas + totalHEsPendientesNocturnas;
-            const totalBruto = totalHorasExtras + totalAsueto + totalDescanso + totalRV + totalPA + totalIndemnización;
-            const baseCotizable = SBM + totalHorasExtras + totalAsueto + totalDescanso + totalRV;
+            const totalBruto = totalHorasExtrasPendientes + totalAsueto + totalDescanso + totalRV + totalPA + totalIndemnización;
+            const baseCotizable = SBM + totalHorasExtrasPendientes + totalAsueto + totalDescanso + totalRV;
 
             const totalISSS = calcularISSS(baseCotizable);
             const totalAFP = calcularAFP(baseCotizable);
@@ -145,11 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("resAguinaldo").textContent = `$${formatearMoneda(totalPA)}`;
             document.getElementById("resIndemnizacion").textContent = `$${formatearMoneda(totalIndemnización)}`;
 
-            const totalDiurnasMostrar = totalHEsDiurnas + totalHEsPendientesDiurnas;
-            document.getElementById("resHEsDiurnas").textContent = `$${formatearMoneda(totalDiurnasMostrar)}`;
-
-            const totalNocturnasMostrar = totalHEsNocturnas + totalHEsPendientesNocturnas;
-            document.getElementById("resHEsNocturnas").textContent = `$${formatearMoneda(totalNocturnasMostrar)}`;
+            document.getElementById("resHEsDiurnas").textContent = `$${formatearMoneda(montoHEDiurnas)}`;
+            document.getElementById("resHEsNocturnas").textContent = `$${formatearMoneda(montoHENocturnas)}`;
 
             document.getElementById("resAsueto").textContent = `$${formatearMoneda(totalAsueto)}`;
             document.getElementById("resDescanso").textContent = `$${formatearMoneda(totalDescanso)}`;
