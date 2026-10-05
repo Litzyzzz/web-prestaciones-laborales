@@ -40,89 +40,49 @@ function calcularRV(SBD, mesesLaborados = 12) {
     return parseFloat(((RVAnual * mesesLaborados) / 12).toFixed(2));
 }
 
-// PRESTACIÓN POR AGUINALDO (PA)
+// PRESTACIÓN POR AGUINALDO (PA) - Art. 198 y 202 C.T.
 function calcularPA(
     SBD,
     añosServicio,
     fechaTerminacionStr,
     fechaIngresoStr
 ) {
-    let D = 15;
-    // Determinar los días de aguinaldo
+    // Determinar los días de aguinaldo según antigüedad (Art. 198)
+    let D = 15; // De 1 a menos de 3 años
     if (añosServicio >= 10) {
-        D = 21;
+        D = 21; // De 10 años en adelante
     } else if (añosServicio >= 3) {
-        D = 19;
+        D = 19; // De 3 a menos de 10 años
     }
 
-    const fechaIngreso =
-        new Date(fechaIngresoStr + "T00:00:00");
+    const fechaIngreso = new Date(fechaIngresoStr + "T00:00:00");
+    const fechaTerminacion = new Date(fechaTerminacionStr + "T00:00:00");
 
-    const fechaTerminacion =
-        new Date(fechaTerminacionStr + "T00:00:00");
-
-    if (
-        isNaN(fechaIngreso.getTime()) ||
-        isNaN(fechaTerminacion.getTime())
-    ) {
+    if (isNaN(fechaIngreso.getTime()) || isNaN(fechaTerminacion.getTime()) || fechaTerminacion < fechaIngreso) {
         return 0;
     }
 
-    if (fechaTerminacion < fechaIngreso) {
-        return 0;
-    }
+    const añoTerminacion = fechaTerminacion.getFullYear();
 
-    const añoTerminacion =
-        fechaTerminacion.getFullYear();
+    // Período legal del aguinaldo: del 12 de diciembre del año anterior al 11 de diciembre del año en curso
+    const fechaCorteAguinaldo = new Date(añoTerminacion, 11, 12);
+    const inicioPeriodoAguinaldo = new Date(añoTerminacion - 1, 11, 12);
 
-    // Fecha de referencia del aguinaldo
-    const fechaCorteAguinaldo =
-        new Date(añoTerminacion, 11, 12);
+    const inicioReal = fechaIngreso > inicioPeriodoAguinaldo ? fechaIngreso : inicioPeriodoAguinaldo;
+    const fechaFinal = fechaTerminacion < fechaCorteAguinaldo ? fechaTerminacion : fechaCorteAguinaldo;
 
-    // Inicio del período
-    const inicioPeriodoAguinaldo =
-        new Date(añoTerminacion - 1, 11, 12);
+    let diasTrabajados = Math.floor((fechaFinal.getTime() - inicioReal.getTime()) / (1000 * 60 * 60 * 24));
+    diasTrabajados = Math.max(0, diasTrabajados);
 
-    // Determinar desde cuándo se debe contar
-    const inicioReal =
-        fechaIngreso > inicioPeriodoAguinaldo
-            ? fechaIngreso
-            : inicioPeriodoAguinaldo;
+    const aguinaldoCompleto = SBD * D;
 
-    // Si termina antes del 12 de diciembre,
-    // se utiliza la fecha de terminación
-    const fechaFinal =
-        fechaTerminacion < fechaCorteAguinaldo
-            ? fechaTerminacion
-            : fechaCorteAguinaldo;
-
-    let diasTrabajados =
-        Math.floor(
-            (
-                fechaFinal.getTime() -
-                inicioReal.getTime()
-            ) /
-            (1000 * 60 * 60 * 24)
-        );
-
-    diasTrabajados =
-        Math.max(0, diasTrabajados);
-
-    const aguinaldoCompleto =
-        SBD * D;
-
-    // Si completó todo el período,
-    // corresponde el aguinaldo completo.
-    if (
-        fechaIngreso <= inicioPeriodoAguinaldo &&
-        fechaTerminacion >= fechaCorteAguinaldo
-    ) {
+    // Si laboró todo el período del año
+    if (fechaIngreso <= inicioPeriodoAguinaldo && fechaTerminacion >= fechaCorteAguinaldo) {
         return parseFloat(aguinaldoCompleto.toFixed(2));
     }
 
-    // Aguinaldo proporcional
-    const aguinaldoDiario =
-        aguinaldoCompleto / 360;
+    // Aguinaldo proporcional usando el año natural (365 días - criterio MTPS)
+    const aguinaldoDiario = aguinaldoCompleto / 365;
 
     return parseFloat((aguinaldoDiario * diasTrabajados).toFixed(2));
 }
@@ -142,136 +102,68 @@ function obtenerSalarioMinimoSector(sector) {
     }
 }
 
-// INDEMNIZACIÓN POR DESPIDO INJUSTIFICADO
+// INDEMNIZACIÓN POR DESPIDO INJUSTIFICADO (Art. 58 C.T.)
 function calcularIndemnizacionDespido(
     SBD,
     añosLaborados,
     mesesLaborados,
-    salarioMensual,
     sectorEconomico = "comercio"
 ) {
-    // Obtiene el salario mínimo del sector
-    const salarioMinimoMensual =
-        obtenerSalarioMinimoSector(sectorEconomico);
+    // Salario mínimo del sector y tope legal de 4 salarios mínimos diarios
+    const salarioMinimoMensual = obtenerSalarioMinimoSector(sectorEconomico);
+    const salarioMinimoDiario = salarioMinimoMensual / 30;
+    const topeSalarioDiario = salarioMinimoDiario * 4;
 
-    // Convierte el salario mínimo mensual a salario mínimo diario
-    const salarioMinimoDiario =
-        salarioMinimoMensual / 30;
-    const topeSalarioDiario =
-        salarioMinimoDiario * 4;
+    // Aplicar tope de 4 salarios mínimos diarios (Art. 58 inc. 3°)
+    const salarioDiarioCalculable = Math.min(SBD, topeSalarioDiario);
 
-    let salarioDiarioCalculable = SBD;
+    // 30 días de salario por cada año laborado y proporcional por meses (Art. 58 inc. 1°)
+    const indemnizacionAños = añosLaborados * salarioDiarioCalculable * 30;
+    const indemnizacionFraccion = salarioDiarioCalculable * 30 * (mesesLaborados / 12);
 
-    // Aplicar el tope
-    if (
-        salarioDiarioCalculable >
-        topeSalarioDiario
-    ) {
-        salarioDiarioCalculable =
-            topeSalarioDiario;
-    }
+    let indemnizacionTotal = indemnizacionAños + indemnizacionFraccion;
 
-    // AÑOS COMPLETOS
-    // 30 días por cada año
-    const indemnizacionAños =
-        añosLaborados *
-        salarioDiarioCalculable *
-        30;
+    // Mínimo legal irrenunciable equivalente a 15 días de salario (Art. 58 inc. 2°)
+    const indemnizacionMinima = salarioDiarioCalculable * 15;
 
-    // FRACCIÓN DEL AÑO
-    const indemnizacionFraccion =
-        salarioDiarioCalculable *
-        30 *
-        (mesesLaborados / 12);
-
-    let indemnizacionTotal =
-        indemnizacionAños +
-        indemnizacionFraccion;
-
-    // MÍNIMO LEGAL DE 15 DÍAS
-    const indemnizacionMinima =
-        salarioDiarioCalculable * 15;
-
-    // Solamente aplicamos el mínimo si
-    // existe tiempo de servicio.
-    if (
-        (añosLaborados > 0 || mesesLaborados > 0) &&
-        indemnizacionTotal < indemnizacionMinima
-    ) {
-        indemnizacionTotal =
-            indemnizacionMinima;
+    if ((añosLaborados > 0 || mesesLaborados > 0) && indemnizacionTotal < indemnizacionMinima) {
+        indemnizacionTotal = indemnizacionMinima;
     }
 
     return parseFloat(indemnizacionTotal.toFixed(2));
 }
-
-// PRESTACIÓN ECONÓMICA POR RENUNCIA VOLUNTARIA
+// PRESTACIÓN ECONÓMICA POR RENUNCIA VOLUNTARIA (Decreto 592)
 function calcularIndemnizacionRenuncia(
     SBD,
     añosLaborados,
     mesesLaborados,
-    sectorEconomico,
-    tipoCargo,
-    avisoPrevio
+    sectorEconomico = "comercio",
+    tipoCargo = "operativo", // "jefatura" u "operativo"
+    dioAvisoPrevio = "si"    // Recibe "si" o "no" desde la interfaz
 ) {
-    // REQUISITO 1: MÍNIMO 2 AÑOS DE SERVICIO
+    // REQUISITO 1: Mínimo 2 años continuos de servicio (Art. 2)
     if (añosLaborados < 2) {
         return 0;
     }
 
-    // Trabajador normal: 15 días.
-    // Jefatura / Gerencia: 30 días (si cumplió el preaviso).
-    if (avisoPrevio !== "si") {
+    // REQUISITO 2: Preaviso obligatorio (Art. 2)
+    if (dioAvisoPrevio !== "si") {
         return 0;
     }
 
-    // ======================================
-    // SALARIO MÍNIMO DEL SECTOR
-    // ======================================
-    const salarioMinimoMensual =
-        obtenerSalarioMinimoSector(
-            sectorEconomico
-        );
+    // SALARIO MÍNIMO DEL SECTOR Y TOPE LEGAL (Máximo 2 salarios mínimos diarios del sector - Art. 4)
+    const salarioMinimoMensual = obtenerSalarioMinimoSector(sectorEconomico);
+    const salarioMinimoDiario = salarioMinimoMensual / 30;
+    const topeSalarioDiario = salarioMinimoDiario * 2;
 
-    const salarioMinimoDiario =
-        salarioMinimoMensual / 30;
+    // Aplicar el tope al salario diario computable
+    let salarioDiarioCalculable = Math.min(SBD, topeSalarioDiario);
 
-    // ======================================
-    // TOPE DEL DECRETO 592 (2 salarios mínimos diarios)
-    // ======================================
-    const topeSalarioDiario =
-        salarioMinimoDiario * 2;
+    // CÁLCULO DE LA PRESTACIÓN: 15 días de salario por cada año de servicio y fracción (Art. 4)
+    const indemnizacionAños = añosLaborados * salarioDiarioCalculable * 15;
+    const indemnizacionFraccion = salarioDiarioCalculable * 15 * (mesesLaborados / 12);
 
-    let salarioDiarioCalculable = SBD;
-
-    if (
-        salarioDiarioCalculable >
-        topeSalarioDiario
-    ) {
-        salarioDiarioCalculable =
-            topeSalarioDiario;
-    }
-
-    // ======================================
-    // 15 DÍAS POR CADA AÑO
-    // ======================================
-    const indemnizacionAños =
-        añosLaborados *
-        salarioDiarioCalculable *
-        15;
-
-    // ======================================
-    // FRACCIÓN DEL AÑO
-    // ======================================
-    const indemnizacionFraccion =
-        salarioDiarioCalculable *
-        15 *
-        (mesesLaborados / 12);
-
-    return parseFloat((
-        indemnizacionAños +
-        indemnizacionFraccion
-    ).toFixed(2));
+    return parseFloat((indemnizacionAños + indemnizacionFraccion).toFixed(2));
 }
 
 // CALCULAR ANTIGÜEDAD
